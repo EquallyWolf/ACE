@@ -5,7 +5,7 @@ description = "ACE, the Artificial Consciousness Engine, is a digital assistant.
 authors = ["EquallyWolf <shaiebilly+ace@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.0"
