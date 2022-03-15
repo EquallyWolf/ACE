@@ -1,23 +1,8 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from io import StringIO
-from ace import __version__
+
 import tomli
-
-
-@dataclass
-class Input(ABC):
-    prompt: str = ""
-
-    @abstractmethod
-    def get(self) -> str:
-        """Return an input from the user as a string, given a prompt."""
-        pass
-
-
-class TextInput(Input):
-    def get(self) -> str:
-        return input(f"{self.prompt} ")
+from ace import __version__
+from ace.inputs import TextInput
 
 
 def test_version():
