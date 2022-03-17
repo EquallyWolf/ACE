@@ -3,6 +3,7 @@ from io import StringIO
 import tomli
 from ace import __version__
 from ace.inputs import CommandLineInput
+from ace.outputs import CommandLineOutput
 
 
 def test_version():
@@ -28,3 +29,9 @@ def test_get_command_line_input_without_prompt(monkeypatch):
     # Mock user input to return "John Doe"
     monkeypatch.setattr("sys.stdin", StringIO("John Doe"))
     assert isinstance(text_input.get(), str), "Should return a string"
+
+
+def test_broadcast_command_line_output_with_prefix():
+    # Create a CommandLineOutput object
+    text_output = CommandLineOutput("ACE")
+    assert text_output.prefix == "ACE"
