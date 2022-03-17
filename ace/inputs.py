@@ -25,7 +25,7 @@ class Input(ABC):
         """
 
 
-class TextInput(Input):
+class CommandLineInput(Input):
     """
     Class for retrieving input from the user via a command line.
 
