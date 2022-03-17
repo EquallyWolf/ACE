@@ -7,6 +7,5 @@ class Output(ABC):
     prefix: str = None
 
 
-class CommandLineOutput:
-    def __init__(self, prefix: str = None):
-        self.prefix = prefix
+class CommandLineOutput(Output):
+    pass
