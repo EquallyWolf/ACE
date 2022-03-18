@@ -39,7 +39,4 @@ class CommandLineOutput(Output):
         """
         Send a message to the user via the command line.
         """
-        if self.prefix:
-            print(f"{self.prefix}: {message}")
-        else:
-            print(message)
+        print(f"{self.prefix}: {message}" if self.prefix else message)
