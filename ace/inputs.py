@@ -45,4 +45,4 @@ class CommandLineInput(Input):
         input: str
             The input from the user.
         """
-        return input(f"{self.prompt} ")
+        return input(f"{self.prompt}: ")
