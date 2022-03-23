@@ -1,5 +1,6 @@
 from io import StringIO
 
+import pytest
 import tomli
 from ace import __version__
 from ace.inputs import CommandLineInput
@@ -11,24 +12,27 @@ def test_version():
         assert __version__ == tomli.load(f)["tool"]["poetry"]["version"]
 
 
-def test_get_command_line_input_with_prompt(monkeypatch):
-    # Create a CommandLineInput object with a prompt
-    text_input = CommandLineInput("Enter your name:")
-    assert text_input.prompt == "Enter your name:"
+@pytest.mark.parametrize(
+    "prompt,expected",
+    [
+        ("Enter your name", "Enter your name "),
+        ("Enter your age:", "Enter your age: "),
+        ("Email>", "Email> "),
+        ("", ""),
+        ("  ", ""),
+        (None, ""),
+        ("1.  ", "1. "),
+        ("Select menu number: ", "Select menu number: "),
+    ],
+)
+def test_get_command_line_input(prompt, expected, monkeypatch, capsys):
+    text_input = CommandLineInput(prompt)
+    monkeypatch.setattr("sys.stdin", StringIO("ABC"))
 
-    # Mock user input to return "John Doe"
-    monkeypatch.setattr("sys.stdin", StringIO("John Doe"))
-    assert isinstance(text_input.get(), str), "Should return a string"
+    output = text_input.get()
 
-
-def test_get_command_line_input_without_prompt(monkeypatch):
-    # Create a CommandLineInput object without a prompt
-    text_input = CommandLineInput()
-    assert text_input.prompt == ""
-
-    # Mock user input to return "John Doe"
-    monkeypatch.setattr("sys.stdin", StringIO("John Doe"))
-    assert isinstance(text_input.get(), str), "Should return a string"
+    assert capsys.readouterr().out == expected
+    assert isinstance(output, str), "Should return a string"
 
 
 def test_broadcast_command_line_output_with_prefix(capsys):
