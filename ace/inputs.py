@@ -40,9 +40,14 @@ class CommandLineInput(Input):
         Obtain the input from a user via the command line and
         return it as a string.
 
-        Returns
-        -------
-        input: str
-            The input from the user.
+        returns: The input from the user.
         """
-        return input(f"{self.prompt} ")
+        return input() if self._prompt_empty() else input(f"{self.prompt.rstrip()} ")
+
+    def _prompt_empty(self) -> bool:
+        """
+        Determine if the prompt is empty.
+
+        returns: True if the prompt is empty, False otherwise.
+        """
+        return not self.prompt or self.prompt.replace(" ", "") == ""
