@@ -35,21 +35,19 @@ def test_get_command_line_input(prompt, expected, monkeypatch, capsys):
     assert isinstance(output, str), "Should return a string"
 
 
-def test_broadcast_command_line_output_with_prefix(capsys):
-    # Create a CommandLineOutput object
-    text_output = CommandLineOutput("ACE")
-    assert text_output.prefix == "ACE"
+@pytest.mark.parametrize(
+    "prefix,message,expected",
+    [
+        ("ACE:", "Hello", "ACE: Hello\n"),
+        ("", "Hello", "Hello\n"),
+        (None, "Hello", "Hello\n"),
+        ("", "", "\n"),
+        (">", "Hello world!", "> Hello world!\n"),
+        ("  ", "Spaces are trimmed", "Spaces are trimmed\n"),
+    ],
+)
+def test_broadcast_command_line_output(prefix, message, expected, capsys):
+    text_output = CommandLineOutput(prefix)
+    text_output.broadcast(message)
 
-    # Mock display output as "ACE: Hello World"
-    text_output.broadcast("Hello World")
-    assert capsys.readouterr().out == "ACE: Hello World\n"
-
-
-def test_broadcast_command_line_output_without_prefix(capsys):
-    # Create a CommandLineOutput object
-    text_output = CommandLineOutput()
-    assert text_output.prefix is None
-
-    # Mock display output as "Hello World"
-    text_output.broadcast("Hello World")
-    assert capsys.readouterr().out == "Hello World\n"
+    assert capsys.readouterr().out == expected

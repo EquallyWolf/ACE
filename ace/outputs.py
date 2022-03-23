@@ -39,4 +39,15 @@ class CommandLineOutput(Output):
         """
         Send a message to the user via the command line.
         """
-        print(f"{self.prefix}: {message}" if self.prefix else message)
+        if self._prefix_empty():
+            print(message)
+        else:
+            print(f"{self.prefix.rstrip()} {message}")
+
+    def _prefix_empty(self) -> bool:
+        """
+        Determine if the prefix is empty.
+
+        returns: True if the prefix is empty, False otherwise.
+        """
+        return not self.prefix or self.prefix.replace(" ", "") == ""
