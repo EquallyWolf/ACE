@@ -2,6 +2,13 @@ from ace.inputs import CommandLineInput
 from ace.outputs import CommandLineOutput
 
 
+def predict(text: str) -> str:
+    """
+    Predict the intent of the given text.
+    """
+    return "I do not understand."
+
+
 def main() -> None:
     """
     The entry point of the program.
@@ -10,7 +17,8 @@ def main() -> None:
     ace_output = CommandLineOutput("ACE:")
 
     while True:
-        ace_output.broadcast(f"You said '{user_input.get()}'")
+        prediction = predict(user_input.get())
+        ace_output.broadcast(prediction)
 
 
 if __name__ == "__main__":
