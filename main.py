@@ -8,7 +8,7 @@ def predict(text: str) -> str:
 
     returns: The predicted intent.
     """
-    return "I do not understand."
+    return "unknown"
 
 
 def main() -> None:
