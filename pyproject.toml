@@ -2,7 +2,7 @@
 name = "ACE"
 version = "0.1.0"
 description = "ACE, the Artificial Consciousness Engine, is a digital assistant. It is designed to help you with your daily tasks and keep you in the loop with your life and the world."
-authors = ["EquallyWolf <shaiebilly+ace@gmail.com>"]
+authors = ["Illy Shaieb <shaiebilly+ace@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
