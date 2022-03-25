@@ -5,6 +5,8 @@ from ace.outputs import CommandLineOutput
 def predict(text: str) -> str:
     """
     Predict the intent of the given text.
+
+    returns: The predicted intent.
     """
     return "I do not understand."
 
