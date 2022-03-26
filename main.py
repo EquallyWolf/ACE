@@ -20,7 +20,10 @@ def main() -> None:
 
     while True:
         prediction = predict(user_input.get())
-        ace_output.broadcast(prediction)
+
+        match prediction:
+            case "unknown":
+                ace_output.broadcast("Sorry, I don't know what you mean.")
 
 
 if __name__ == "__main__":
