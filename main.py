@@ -1,14 +1,6 @@
 from ace.inputs import CommandLineInput
 from ace.outputs import CommandLineOutput
-
-
-def predict(text: str) -> str:
-    """
-    Predict the intent of the given text.
-
-    returns: The predicted intent.
-    """
-    return "unknown"
+from ace.net import predict
 
 
 def main() -> None:
