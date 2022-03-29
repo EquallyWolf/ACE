@@ -5,6 +5,7 @@ import tomli
 from ace import __version__
 from ace.inputs import CommandLineInput
 from ace.outputs import CommandLineOutput
+from ace.net import predict
 
 
 def test_version():
@@ -51,3 +52,8 @@ def test_broadcast_command_line_output(prefix, message, expected, capsys):
     text_output.broadcast(message)
 
     assert capsys.readouterr().out == expected
+
+
+@pytest.mark.parametrize("text,expected", [("", "unknown"), (None, "unknown")])
+def test_predict(text, expected):
+    assert predict(text) == expected
