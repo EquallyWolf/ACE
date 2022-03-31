@@ -7,3 +7,43 @@
 </div>
 
 ACE, the Artificial Consciousness Engine, is a digital assistant. It is designed to help you with your daily tasks and keep you in the loop with your life and the world.
+
+## Getting Started
+
+### Prerequisites
+Please make sure you have the following installed:
+
+| Package | Version | Description | Required |
+| --- | --- | --- | --- |
+| Python | 3.9+ | https://www.python.org/downloads/ | :heavy_check_mark: |
+| Poetry | 1.0+ | https://python-poetry.org/ | :heavy_check_mark: |
+| Git | 2.27+ | https://git-scm.com/ | :heavy_check_mark: |
+| GitHub CLI | 2.7+ | https://github.com/cli/cli | :x: |
+
+### Installation
+First, navigate to a directory of your choice and run one of the following commands:
+- Git
+
+    ```bash
+    $ git clone https://github.com/IllyShaieb/ACE.git
+    ```
+
+- GitHub CLI
+
+    ```shell
+    $ gh clone IllyShaieb/ACE
+    ```
+
+Then run the following commands to install the dependencies:
+
+```shell
+$ cd ACE
+$ poetry install
+```
+
+### Running
+To start ACE, run the following command:
+
+```shell
+$ poetry run python main.py
+```
