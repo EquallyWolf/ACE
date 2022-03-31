@@ -4,4 +4,9 @@ def predict(text: str) -> str:
 
     returns: The predicted intent, or "unknown" if the intent is unknown.
     """
-    return "unknown"
+    if text is None or not text.strip():
+        return "unknown"
+    if any(
+        word.lower() for word in text.split() if word.lower() in {"hello", "hi", "hey"}
+    ):
+        return "greeting"
