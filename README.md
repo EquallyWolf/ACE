@@ -47,3 +47,8 @@ To start ACE, run the following command:
 ```shell
 $ poetry run python main.py
 ```
+
+## Features
+| | Intent | Description | Example |
+| --- | --- | --- | --- |
+| :wave: | greeting | respond with a greeting message | hello |
