@@ -52,3 +52,4 @@ $ poetry run python main.py
 | | Intent | Description | Example |
 | --- | --- | --- | --- |
 | :wave: | greeting | respond with a greeting message | hello |
+| :runner: | goodbye | respond with a goodbye message and then exit| goodbye |
