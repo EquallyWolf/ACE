@@ -16,6 +16,8 @@ def main() -> None:
         match prediction:
             case "unknown":
                 ace_output.broadcast("Sorry, I don't know what you mean.")
+            case "greeting":
+                ace_output.broadcast("Hello!")
 
 
 if __name__ == "__main__":

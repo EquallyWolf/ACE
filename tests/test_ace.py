@@ -54,6 +54,19 @@ def test_broadcast_command_line_output(prefix, message, expected, capsys):
     assert capsys.readouterr().out == expected
 
 
-@pytest.mark.parametrize("text,expected", [("", "unknown"), (None, "unknown")])
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("", "unknown"),
+        (None, "unknown"),
+        ("Hello", "greeting"),
+        ("hello", "greeting"),
+        ("Hi", "greeting"),
+        ("Hey", "greeting"),
+        ("hey", "greeting"),
+        ("Hello There!", "greeting"),
+        ("hello there!", "greeting"),
+    ],
+)
 def test_predict(text, expected):
     assert predict(text) == expected
