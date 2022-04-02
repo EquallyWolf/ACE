@@ -66,6 +66,11 @@ def test_broadcast_command_line_output(prefix, message, expected, capsys):
         ("hey", "greeting"),
         ("Hello There!", "greeting"),
         ("hello there!", "greeting"),
+        ("Goodbye", "goodbye"),
+        ("goodbye", "goodbye"),
+        ("Good bye", "goodbye"),
+        ("good bye", "goodbye"),
+        ("Bye!", "goodbye"),
     ],
 )
 def test_predict(text, expected):
