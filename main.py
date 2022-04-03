@@ -18,6 +18,9 @@ def main() -> None:
                 ace_output.broadcast("Sorry, I don't know what you mean.")
             case "greeting":
                 ace_output.broadcast("Hello!")
+            case "goodbye":
+                ace_output.broadcast("Goodbye!")
+                quit()
 
 
 if __name__ == "__main__":
