@@ -7,10 +7,17 @@ def predict(text: str) -> str:
 
     returns: The predicted intent, or "unknown" if the intent is unknown.
     """
-    if re.match(
-        "|".join(["hello", "hi", "hey", "hi there"]), text or "", re.IGNORECASE
-    ):
+    if _is_match(text, ["hello", "hi", "hey", "hi there"]):
         return "greeting"
-    if re.match("|".join(["goodbye", "good bye", "bye"]), text or "", re.IGNORECASE):
+    if _is_match(text, ["goodbye", "good bye", "bye"]):
         return "goodbye"
     return "unknown"
+
+
+def _is_match(text: str, patterns: str) -> bool:
+    """
+    Helper function to check if the given text matches the given pattern.
+
+    returns: True if the text matches the pattern, False otherwise.
+    """
+    return bool(re.match("|".join(patterns), text or "", re.IGNORECASE))
