@@ -1,5 +1,8 @@
 import re
 
+GREETINGS = ["hello", "hi", "hey", "hi there"]
+GOODBYES = ["goodbye", "good bye", "bye"]
+
 
 def predict(text: str) -> str:
     """
@@ -7,9 +10,9 @@ def predict(text: str) -> str:
 
     returns: The predicted intent, or "unknown" if the intent is unknown.
     """
-    if _is_match(text, ["hello", "hi", "hey", "hi there"]):
+    if _is_match(text, GREETINGS):
         return "greeting"
-    if _is_match(text, ["goodbye", "good bye", "bye"]):
+    if _is_match(text, GOODBYES):
         return "goodbye"
     return "unknown"
 
