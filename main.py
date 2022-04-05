@@ -1,6 +1,6 @@
 from ace.inputs import CommandLineInput
 from ace.outputs import CommandLineOutput
-from ace.net import predict
+from ace.net import IntentModel
 
 
 def main() -> None:
@@ -10,10 +10,11 @@ def main() -> None:
     user_input = CommandLineInput("You:")
     ace_output = CommandLineOutput("ACE:")
 
-    while True:
-        prediction = predict(user_input.get())
+    model = IntentModel()
 
-        match prediction:
+    while True:
+
+        match model.predict(user_input.get()):
             case "unknown":
                 ace_output.broadcast("Sorry, I don't know what you mean.")
             case "greeting":
