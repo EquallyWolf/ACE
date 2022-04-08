@@ -19,7 +19,7 @@ class IntentModel:
             (
                 intent
                 for intent, pattern in self.intents.items()
-                if re.search(pattern, text, re.IGNORECASE)
+                if self._is_match(text, pattern)
             ),
             "unknown",
         )
@@ -36,9 +36,9 @@ class IntentModel:
         """
         Helper function to create the intents dictionary.
 
-        returns: A dictionary of intents.
+        returns: A dictionary of intents and their patterns.
         """
         return {
-            "GREETINGS": ["hello", "hi", "hey", "hi there"],
-            "GOODBYES": ["goodbye", "good bye", "bye"],
+            "greeting": ["hello", "hi", "hey", "hi there"],
+            "goodbye": ["goodbye", "good bye", "bye"],
         }
