@@ -41,4 +41,5 @@ class IntentModel:
         return {
             "greeting": ["hello", "hi", "hey", "hi there"],
             "goodbye": ["goodbye", "good bye", "bye"],
+            "open_app": ["open", "start"],
         }

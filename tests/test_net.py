@@ -42,3 +42,14 @@ class TestIntentModel:
     )
     def test_predict_goodbye(self, text, expected):
         assert self.model.predict(text) == expected
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("Open word", "open_app"),
+            ("open excel", "open_app"),
+            ("start Spotify", "open_app"),
+        ],
+    )
+    def test_predict_open_app(self, text, expected):
+        assert self.model.predict(text) == expected
