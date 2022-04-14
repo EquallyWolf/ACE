@@ -53,3 +53,4 @@ $ poetry run python main.py
 | --- | --- | --- | --- |
 | :wave: | greeting | respond with a greeting message | hello |
 | :runner: | goodbye | respond with a goodbye message and then exit| goodbye |
+| :computer: | open_app | open the specified application | open excel |
