@@ -26,7 +26,7 @@ def main() -> None:
             case "unknown":
                 unknown(ace_output)
             case "greeting":
-                ace_output.broadcast("Hello!")
+                greeting(ace_output)
             case "goodbye":
                 ace_output.broadcast("Goodbye!")
                 quit()
@@ -58,6 +58,10 @@ def main() -> None:
 
 def unknown(output: Output) -> None:
     output.broadcast("Sorry, I don't know what you mean.")
+
+
+def greeting(output: Output) -> None:
+    output.broadcast("Hello!")
 
 
 if __name__ == "__main__":
