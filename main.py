@@ -6,7 +6,7 @@ import windowsapps
 
 from ace.inputs import CommandLineInput
 from ace.net import IntentModel
-from ace.outputs import CommandLineOutput
+from ace.outputs import CommandLineOutput, Output
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
 
         match model.predict(text):
             case "unknown":
-                ace_output.broadcast("Sorry, I don't know what you mean.")
+                unknown(ace_output)
             case "greeting":
                 ace_output.broadcast("Hello!")
             case "goodbye":
@@ -54,6 +54,10 @@ def main() -> None:
                         ace_output.broadcast(
                             f"Sorry, I don't know how to open '{app_name}' on this platform."
                         )
+
+
+def unknown(output: Output) -> None:
+    output.broadcast("Sorry, I don't know what you mean.")
 
 
 if __name__ == "__main__":
