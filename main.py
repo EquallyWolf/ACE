@@ -28,8 +28,7 @@ def main() -> None:
             case "greeting":
                 greeting(ace_output)
             case "goodbye":
-                ace_output.broadcast("Goodbye!")
-                quit()
+                goodbye(ace_output)
             case "open_app":
                 app_name = " ".join(text.split(" ")[1:])
 
@@ -62,6 +61,11 @@ def unknown(output: Output) -> None:
 
 def greeting(output: Output) -> None:
     output.broadcast("Hello!")
+
+
+def goodbye(output: Output) -> None:
+    output.broadcast("Goodbye!")
+    quit()
 
 
 if __name__ == "__main__":
