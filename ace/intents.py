@@ -2,7 +2,9 @@ import os
 import platform
 
 import tomli
-import windowsapps
+
+if platform.system() == "Windows":
+    import windowsapps
 
 
 def unknown() -> str:
