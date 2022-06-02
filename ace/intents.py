@@ -5,6 +5,9 @@ import tomli
 import ace.application as app
 
 
+app_factory = app.AppManagerFactory()
+
+
 def unknown() -> str:
     return "Sorry, I don't know what you mean."
 
@@ -30,13 +33,13 @@ def open_app(text: str) -> str:
 
     current_platform = platform.system()
 
-    match current_platform.lower():
-        case "windows":
-            manager = app.WindowsAppManager()
-            try:
-                manager.open(app_name)
-                return f"Opening '{app_name}'..."
-            except FileNotFoundError:
-                return f"Sorry, I can't open '{app_name}'. Is it installed?"
-        case _:
-            return f"Sorry, I don't know how to open apps on this platform ({current_platform})."
+    try:
+        manager = app_factory.create(current_platform)
+    except KeyError:
+        return f"Sorry, I don't know how to open apps on this platform ({current_platform})."
+
+    try:
+        manager.open(app_name)
+        return f"Opening '{app_name}'..."
+    except FileNotFoundError:
+        return f"Sorry, I can't open '{app_name}'. Is it installed?"
