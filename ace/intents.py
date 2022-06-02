@@ -2,9 +2,7 @@ import os
 import platform
 
 import tomli
-
-if platform.system() == "Windows":
-    import windowsapps
+import ace.application as app
 
 
 def unknown() -> str:
@@ -34,8 +32,9 @@ def open_app(text: str) -> str:
 
     match current_platform.lower():
         case "windows":
+            manager = app.WindowsAppManager()
             try:
-                windowsapps.open_app(app_name)
+                manager.open(app_name)
                 return f"Opening '{app_name}'..."
             except FileNotFoundError:
                 return f"Sorry, I can't open '{app_name}'. Is it installed?"

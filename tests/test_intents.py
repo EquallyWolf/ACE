@@ -21,7 +21,7 @@ def test_intent_goodbye():
 
 def test_intent_open_app_windows(monkeypatch):
     monkeypatch.setattr("platform.system", lambda: "Windows")
-    monkeypatch.setattr("ace.intents.windowsapps.open_app", lambda x: None)
+    monkeypatch.setattr("ace.application.WindowsAppManager.open", lambda *args: None)
 
     response = intents.open_app("open chrome")
 
@@ -39,7 +39,7 @@ def test_intent_open_app_unknown_platform(monkeypatch):
 def test_intent_open_app_windows_not_installed(monkeypatch):
     monkeypatch.setattr("platform.system", lambda: "Windows")
     monkeypatch.setattr(
-        "ace.intents.windowsapps.find_app",
+        "ace.application.windowsapps.find_app",
         lambda x: "test",
     )
 
