@@ -21,7 +21,7 @@ def test_intent_goodbye():
 
 def test_intent_open_app_windows(monkeypatch):
     monkeypatch.setattr("platform.system", lambda: "Windows")
-    monkeypatch.setattr("ace.application.WindowsAppManager.open", lambda *args: None)
+    monkeypatch.setattr("ace.application.os.startfile", lambda x: None)
 
     response = intents.open_app("open chrome")
 
@@ -30,6 +30,7 @@ def test_intent_open_app_windows(monkeypatch):
 
 def test_intent_open_app_unknown_platform(monkeypatch):
     monkeypatch.setattr("platform.system", lambda: "ABC123")
+    monkeypatch.setattr("ace.application.os.startfile", lambda x: None)
 
     response = intents.open_app("open chrome")
 
@@ -38,11 +39,6 @@ def test_intent_open_app_unknown_platform(monkeypatch):
 
 def test_intent_open_app_windows_not_installed(monkeypatch):
     monkeypatch.setattr("platform.system", lambda: "Windows")
-    monkeypatch.setattr(
-        "ace.application.windowsapps.find_app",
-        lambda x: "test",
-    )
 
-    response = intents.open_app("open test")
-
-    assert response == "Sorry, I can't open 'test'. Is it installed?"
+    response = intents.open_app("open UnknownApp")
+    assert response == "Sorry, I can't open 'UnknownApp'. Is it installed?"

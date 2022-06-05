@@ -1,8 +1,7 @@
-import platform
+import subprocess
+import os
+import json
 from dataclasses import dataclass
-
-if platform.system() == "Windows":
-    import windowsapps
 
 
 @dataclass
@@ -14,7 +13,20 @@ class WindowsAppManager:
 
     def open(self, app_name: str):
         """Opens the specified application."""
-        windowsapps.open_app(app_name)
+        for app in sorted(self.apps, key=lambda x: x["Name"]):
+            if app_name in app["Name"]:
+                os.startfile(f"shell:AppsFolder\\{app['AppID']}")
+                return
+        raise FileNotFoundError(f"Could not find '{app_name}'.")
+
+    @property
+    def apps(self):
+        """Finds the path of the specified application."""
+        return json.loads(
+            subprocess.getoutput(
+                'powershell -ExecutionPolicy Bypass "Get-StartApps|convertto-json"'
+            )
+        )
 
 
 @dataclass
