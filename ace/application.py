@@ -11,7 +11,7 @@ class WindowsAppManager:
     Windows platform.
     """
 
-    def open(self, app_name: str):
+    def open(self, app_name: str) -> None:
         """Opens the specified application."""
         for app in sorted(self.apps, key=lambda x: x["Name"]):
             if app_name in app["Name"]:
@@ -20,7 +20,7 @@ class WindowsAppManager:
         raise FileNotFoundError(f"Could not find '{app_name}'.")
 
     @property
-    def apps(self):
+    def apps(self) -> list[dict]:
         """Finds the path of the specified application."""
         return json.loads(
             subprocess.getoutput(
@@ -36,7 +36,7 @@ class AppManagerFactory:
     """
 
     @property
-    def managers(self):
+    def managers(self) -> dict[str, WindowsAppManager]:
         """
         Returns a dictionary of AppManager instances.
         """
