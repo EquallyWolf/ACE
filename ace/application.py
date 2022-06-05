@@ -1,6 +1,6 @@
-import subprocess
-import os
 import json
+import os
+import subprocess
 from dataclasses import dataclass
 
 
@@ -15,8 +15,7 @@ class WindowsAppManager:
         """Opens the specified application."""
         for app in sorted(self.apps, key=lambda x: x["Name"]):
             if app_name in app["Name"]:
-                os.startfile(f"shell:AppsFolder\\{app['AppID']}")
-                return
+                return os.popen(f"start shell:AppsFolder\\{app['AppID']}")
         raise FileNotFoundError(f"Could not find '{app_name}'.")
 
     @property
