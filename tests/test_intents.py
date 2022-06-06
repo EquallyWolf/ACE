@@ -42,3 +42,13 @@ def test_intent_open_app_windows_not_installed(monkeypatch):
 
     response = intents.open_app("open UnknownApp")
     assert response == "Sorry, I can't open 'UnknownApp'. Is it installed?"
+
+
+def test_intent_open_app_windows_empty_app_list(monkeypatch):
+    monkeypatch.setattr("platform.system", lambda: "Windows")
+    monkeypatch.setattr("ace.application.os.popen", lambda x: None)
+    monkeypatch.setattr("ace.application.WindowsAppManager._find_apps", lambda x: None)
+
+    response = intents.open_app("open chrome")
+
+    assert response == "Sorry, I can't open 'Chrome'. Is it installed?"

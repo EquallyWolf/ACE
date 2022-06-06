@@ -20,11 +20,22 @@ class WindowsAppManager:
 
     @property
     def apps(self) -> list[dict]:
-        """Finds the path of the specified application."""
-        return json.loads(
-            subprocess.getoutput(
-                'powershell -ExecutionPolicy Bypass "Get-StartApps|convertto-json"'
-            )
+        """Returns a list containing details of all applications
+        installed on the system."""
+        if output := self._find_apps():
+            return json.loads(output)
+        else:
+            return [
+                {
+                    "Name": "",
+                    "AppID": "",
+                }
+            ]
+
+    def _find_apps(self) -> list[dict]:
+        """Run command to find all applications on the system."""
+        return subprocess.getoutput(
+            'powershell -ExecutionPolicy Bypass "Get-StartApps|convertto-json"'
         )
 
 
