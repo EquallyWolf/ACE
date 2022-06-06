@@ -1,9 +1,5 @@
-import os
-import platform
-
-import tomli
-import windowsapps
-
+import sys
+from ace import intents
 from ace.inputs import CommandLineInput
 from ace.net import IntentModel
 from ace.outputs import CommandLineOutput
@@ -24,36 +20,14 @@ def main() -> None:
 
         match model.predict(text):
             case "unknown":
-                ace_output.broadcast("Sorry, I don't know what you mean.")
+                ace_output.broadcast(intents.unknown())
             case "greeting":
-                ace_output.broadcast("Hello!")
+                ace_output.broadcast(intents.greeting())
             case "goodbye":
-                ace_output.broadcast("Goodbye!")
-                quit()
+                ace_output.broadcast(intents.goodbye())
+                sys.exit("Exiting...")
             case "open_app":
-                app_name = " ".join(text.split(" ")[1:])
-
-                with open(os.path.join("config", "apps.toml"), "rb") as f:
-                    app_data = tomli.load(f)
-
-                for app_id, aliases in app_data["aliases"].items():
-                    if app_name in aliases:
-                        app_name = app_id
-                        break
-
-                match platform.system().lower():
-                    case "windows":
-                        try:
-                            windowsapps.open_app(app_name)
-                            ace_output.broadcast(f"Opening '{app_name}'...")
-                        except FileNotFoundError:
-                            ace_output.broadcast(
-                                f"Sorry, I can't open '{app_name}'. Is it installed?"
-                            )
-                    case _:
-                        ace_output.broadcast(
-                            f"Sorry, I don't know how to open '{app_name}' on this platform."
-                        )
+                ace_output.broadcast(intents.open_app(text))
 
 
 if __name__ == "__main__":
