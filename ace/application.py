@@ -18,6 +18,13 @@ class WindowsAppManager:
                 return os.popen(f"start shell:AppsFolder\\{app['AppID']}")
         raise FileNotFoundError(f"Could not find '{app_name}'.")
 
+    def close(self, app_name: str) -> None:
+        """Closes the specified application."""
+        for app in sorted(self.apps, key=lambda x: x["Name"]):
+            if app_name in app["Name"]:
+                return os.popen(f"taskkill /fi 'IMAGENAME eq {app['AppID']}*'")
+        raise FileNotFoundError(f"Could not find '{app_name}'.")
+
     @property
     def apps(self) -> list[dict]:
         """Returns a list containing details of all applications

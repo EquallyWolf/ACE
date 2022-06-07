@@ -58,3 +58,31 @@ class TestOpenAppWindows:
         response = intents.open_app("open chrome")
 
         assert response == "Sorry, I can't open 'Chrome'. Is it installed?"
+
+
+@mark.skipif(system() != "Windows", reason="Windows-only tests")
+class TestCloseAppIntent:
+    @staticmethod
+    def test_intent_close_app_windows(monkeypatch):
+        monkeypatch.setattr("ace.application.os.popen", lambda x: None)
+
+        response = intents.close_app("close chrome")
+
+        assert response == "Closing 'Chrome'..."
+
+    @staticmethod
+    def test_intent_close_app_unknown_platform(monkeypatch):
+        monkeypatch.setattr("platform.system", lambda: "ABC123")
+        monkeypatch.setattr("ace.application.os.popen", lambda x: None)
+
+        response = intents.close_app("close chrome")
+
+        assert (
+            response
+            == "Sorry, I don't know how to close apps on this platform (ABC123)."
+        )
+
+    @staticmethod
+    def test_intent_close_app_windows_not_installed(monkeypatch):
+        response = intents.close_app("close UnknownApp")
+        assert response == "Sorry, I can't close 'UnknownApp'. Is it installed?"
