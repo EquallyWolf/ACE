@@ -1,7 +1,5 @@
-import os
 import platform
 
-import tomli
 import ace.application as app
 
 
@@ -23,14 +21,6 @@ def goodbye() -> str:
 def open_app(text: str) -> str:
     app_name = " ".join(text.split(" ")[1:])
 
-    with open(os.path.join("config", "apps.toml"), "rb") as f:
-        app_data = tomli.load(f)
-
-    for app_id, aliases in app_data["aliases"].items():
-        if app_name in aliases:
-            app_name = app_id
-            break
-
     current_platform = platform.system()
 
     try:
@@ -48,14 +38,6 @@ def open_app(text: str) -> str:
 def close_app(text: str) -> str:
     app_name = " ".join(text.split(" ")[1:])
 
-    with open(os.path.join("config", "apps.toml"), "rb") as f:
-        app_data = tomli.load(f)
-
-    for app_id, aliases in app_data["aliases"].items():
-        if app_name in aliases:
-            app_name = app_id
-            break
-
     current_platform = platform.system()
 
     try:
@@ -67,4 +49,4 @@ def close_app(text: str) -> str:
         manager.close(app_name)
         return f"Closing '{app_name}'..."
     except FileNotFoundError:
-        return f"Sorry, I can't close '{app_name}'. Is it installed?"
+        return f"Sorry, I can't close '{app_name}'. Is it running?"
