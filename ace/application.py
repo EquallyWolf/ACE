@@ -95,12 +95,3 @@ def app_data() -> list[dict]:
     """
     with open(os.path.join("config", "apps.toml"), "rb") as f:
         return tomli.load(f)
-
-
-def app_id(app_name: str) -> str:
-    """
-    Returns the ID of the app with the given name.
-    """
-    for app_id, aliases in app_data()["aliases"].items():
-        if app_name in aliases:
-            return app_id
