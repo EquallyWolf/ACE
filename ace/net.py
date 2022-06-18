@@ -42,4 +42,5 @@ class IntentModel:
             "greeting": ["hello", "hi", "hey", "hi there"],
             "goodbye": ["goodbye", "good bye", "bye"],
             "open_app": ["open", "start"],
+            "close_app": ["close", "stop"],
         }

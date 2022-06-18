@@ -28,6 +28,8 @@ def main() -> None:
                 sys.exit("Exiting...")
             case "open_app":
                 ace_output.broadcast(intents.open_app(text))
+            case "close_app":
+                ace_output.broadcast(intents.close_app(text))
 
 
 if __name__ == "__main__":
