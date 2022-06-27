@@ -2,6 +2,9 @@ from io import StringIO
 
 import pytest
 from ace.inputs import CommandLineInput
+from ace.utils import TextProcessor
+
+text_processor = TextProcessor()
 
 
 class TestCommandLineInputs:
@@ -21,7 +24,7 @@ class TestCommandLineInputs:
 
         output = text_input.get()
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
         assert isinstance(output, str), "Should return a string"
 
     @pytest.mark.parametrize(
@@ -40,7 +43,7 @@ class TestCommandLineInputs:
 
         output = text_input.get()
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
         assert isinstance(output, str), "Should return a string"
 
     @pytest.mark.parametrize(
@@ -60,5 +63,5 @@ class TestCommandLineInputs:
 
         output = text_input.get()
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
         assert isinstance(output, str), "Should return a string"
