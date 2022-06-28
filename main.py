@@ -1,16 +1,21 @@
 import sys
+
+from colorama import Fore, init as colorama_init
+
 from ace import intents
 from ace.inputs import CommandLineInput
 from ace.net import IntentModel
 from ace.outputs import CommandLineOutput
+
+colorama_init(autoreset=True)
 
 
 def main() -> None:
     """
     The entry point of the program.
     """
-    user_input = CommandLineInput("You:")
-    ace_output = CommandLineOutput("ACE:")
+    user_input = CommandLineInput(f"{Fore.CYAN}You:")
+    ace_output = CommandLineOutput(f"{Fore.YELLOW}ACE:")
 
     model = IntentModel()
 

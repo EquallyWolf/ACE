@@ -1,5 +1,8 @@
 import pytest
 from ace.outputs import CommandLineOutput
+from ace.utils import TextProcessor
+
+text_processor = TextProcessor()
 
 
 class TestCommandLineOutput:
@@ -18,7 +21,7 @@ class TestCommandLineOutput:
         text_output = CommandLineOutput(prefix)
         text_output.broadcast(message)
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
 
     @pytest.mark.parametrize(
         "prefix,message,expected",
@@ -34,7 +37,7 @@ class TestCommandLineOutput:
         text_output = CommandLineOutput(prefix)
         text_output.broadcast(message)
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
 
     @pytest.mark.parametrize(
         "prefix,message,expected",
@@ -50,4 +53,4 @@ class TestCommandLineOutput:
         text_output = CommandLineOutput(prefix)
         text_output.broadcast(message)
 
-        assert capsys.readouterr().out == expected
+        assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
