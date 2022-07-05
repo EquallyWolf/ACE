@@ -1,0 +1,62 @@
+{
+    "SUCCESS": {
+        "coord": {
+            "lon": -0.4541,
+            "lat": 51.0192
+        },
+        "weather": [
+            {
+                "id": 801,
+                "main": "Clouds",
+                "description": "few clouds",
+                "icon": "02n"
+            }
+        ],
+        "base": "stations",
+        "main": {
+            "temp": 14.19,
+            "feels_like": 13.75,
+            "temp_min": 12.25,
+            "temp_max": 15.83,
+            "pressure": 1023,
+            "humidity": 80,
+            "sea_level": 1023,
+            "grnd_level": 1020
+        },
+        "visibility": 10000,
+        "wind": {
+            "speed": 2.84,
+            "deg": 299,
+            "gust": 5.82
+        },
+        "clouds": {
+            "all": 24
+        },
+        "dt": 1656975896,
+        "sys": {
+            "type": 2,
+            "id": 2005076,
+            "country": "GB",
+            "sunrise": 1656993258,
+            "sunset": 1657052284
+        },
+        "timezone": 3600,
+        "id": 2655662,
+        "name": "Billingshurst",
+        "cod": 200
+    },
+    "FAILURE": {
+        "404": {
+            "cod": 404,
+            "message": "city not found"
+        },
+        "401": {
+            "cod": 401,
+            "message": "invalid API key"
+        },
+        "429": {
+            "cod": 429,
+            "message": "too many requests"
+        }
+    }
+}
