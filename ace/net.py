@@ -49,4 +49,11 @@ class IntentModel:
                 "get weather in",
                 "get current weather",
             ],
+            "tomorrow_weather": [
+                "tomorrow's weather",
+                "tomorrow weather",
+                "weather tomorrow",
+                "get weather tomorrow",
+                "what will tomorrow's weather",
+            ],
         }
