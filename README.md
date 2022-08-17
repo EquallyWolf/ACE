@@ -56,6 +56,7 @@ $ poetry run python main.py
 | :computer: | open_app | open the specified application | open excel | **Only available on windows** |
 | :computer: | close_app | close the specified application | close notepad | **Only available on windows** |
 | :partly_sunny: | current_weather | get the current weather for a location | current weather in London | **See [Weather](#weather) section for setup details**|
+| :partly_sunny: | tomorrow_weather | get tomorrow's weather for a location | tomorrow's weather in London | **See [Weather](#weather) section for setup details**|
 
 ## Weather
 To set up the weather intent, you must set the following environment variables:
