@@ -139,6 +139,46 @@ def current_weather(text: str) -> str:
     return "Sorry, I couldn't get the weather for you. Check your connection and try again."
 
 
+@_register(requires_text=True)
+def tomorrow_weather(text: str) -> str:
+    stop_words = [
+        "tomorrow's weather",
+        "tomorrow weather in",
+        "get tomorrow weather",
+        "tomorrow weather conditions",
+        "tomorrow weather",
+        "get weather tomorrow",
+        "weather tomorrow",
+        " tomorrow ",
+        " tomorrow",
+        "tomorrow ",
+        " in ",
+        " in",
+        "in ",
+    ]
+
+    if response := weather_api.get_tomorrow_weather(
+        re.sub("|".join(stop_words), "", text, flags=re.IGNORECASE).replace(" ", "")
+    ):
+
+        if response["code"] == "200":
+
+            unit = f"{DEGREES}{response['temp']['units']}"
+
+            return f"The weather tomorrow in {response['location']} will be {response['temp']['value']}{unit} and {response['condition']}."
+
+        elif response["code"] == "401":
+            return "The configured weather API key is invalid. Please check the 'ACE_WEATHER_KEY' environment variable."
+
+        elif response["code"] == "404":
+            return "Couldn't find that location. Check the spelling and try again."
+
+        elif response["code"] == "429":
+            return "The configured weather API key has been used too many times. Please wait and try again."
+
+    return "Sorry, I couldn't get the weather for you. Check your connection and try again."
+
+
 if __name__ == "__main__":  # pragma: no cover
     from pprint import pprint
 

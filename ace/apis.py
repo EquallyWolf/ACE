@@ -1,5 +1,8 @@
 import os
+from collections import Counter
 from dataclasses import dataclass, field
+from datetime import datetime as dt, timedelta
+from pprint import pprint
 from typing import Union
 
 import requests
@@ -13,7 +16,8 @@ class WeatherAPI:
 
     _base_urls: dict[str, str] = field(
         default_factory=lambda: {
-            "current": "https://api.openweathermap.org/data/2.5/weather?"
+            "current": "https://api.openweathermap.org/data/2.5/weather?",
+            "tomorrow": "https://api.openweathermap.org/data/2.5/forecast?",
         }
     )
 
@@ -45,6 +49,57 @@ class WeatherAPI:
             return {"code": str(response["cod"]), "message": response["message"]}
 
         return None
+
+    def get_tomorrow_weather(
+        self, location: str = "", units: str = "metric"
+    ) -> Union[dict, None]:
+        """
+        Returns a dictionary containing the weather for tomorrow in a location,
+        or None if there was an error.
+
+        If no location is provided, the location will be determined by the
+        location set up in the ACE_HOME environment variable.
+        """
+        location = location or os.environ["ACE_HOME"]
+
+        if response := self._get_response(location, units, "tomorrow"):
+
+            if response["cod"] == "200":
+
+                condition, temperature = self._get_weather(response)
+
+                return {
+                    "location": location.title(),
+                    "condition": condition,
+                    "temp": {
+                        "units": "C" if units == "metric" else "F",
+                        "value": temperature,
+                    },
+                    "code": str(response["cod"]),
+                }
+
+            return {"code": str(response["cod"]), "message": response["message"]}
+
+        return None
+
+    def _get_weather(self, response: dict) -> tuple[str, float]:
+        """
+        Helper function to get the weather condition and temperature from the
+        API response.
+        """
+        conditions = []
+        temperatures = []
+
+        tomorrow = (dt.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+        for day in response["list"]:
+            if day["dt_txt"].startswith(tomorrow):
+                conditions.append(day["weather"][0]["description"])
+                temperatures.append(day["main"]["temp"])
+
+        return Counter(conditions).most_common(1)[0][0], round(
+            sum(temperatures) / len(temperatures), 2
+        )
 
     def _get_response(
         self, location: str, units: str, tag: str
