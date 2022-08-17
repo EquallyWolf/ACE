@@ -2,7 +2,7 @@ import os
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime as dt, timedelta
-from pprint import pprint
+
 from typing import Union
 
 import requests
