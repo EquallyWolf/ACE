@@ -1,11 +1,12 @@
 import os
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import datetime as dt, timedelta
-
+from datetime import datetime as dt
+from datetime import timedelta
 from typing import Union
 
 import requests
+from cachetools import TTLCache, cached
 
 
 @dataclass
@@ -20,6 +21,11 @@ class WeatherAPI:
             "tomorrow": "https://api.openweathermap.org/data/2.5/forecast?",
         }
     )
+
+    _session: requests.Session = requests.Session()
+
+    def __hash__(self) -> int:  # pragma: no cover
+        return hash(self.__class__.__name__)
 
     def get_current_weather(
         self, location: str = "", units: str = "metric"
@@ -101,6 +107,7 @@ class WeatherAPI:
             sum(temperatures) / len(temperatures), 2
         )
 
+    @cached(cache=TTLCache(maxsize=1000, ttl=60 * 60 * 3))
     def _get_response(
         self, location: str, units: str, tag: str
     ) -> dict:  # pragma: no cover
@@ -115,7 +122,7 @@ class WeatherAPI:
             api_key: str = f"{os.environ['ACE_WEATHER_KEY']}"
             url = f"{base_url}q={location}&appid={api_key}&units={units}"
 
-            return requests.get(url).json()
+            return self._session.get(url).json()
 
         except requests.exceptions.ConnectionError:
 
