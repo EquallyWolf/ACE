@@ -43,4 +43,17 @@ class IntentModel:
             "goodbye": ["goodbye", "good bye", "bye"],
             "open_app": ["open", "start"],
             "close_app": ["close", "stop"],
+            "current_weather": [
+                "current weather",
+                "weather in",
+                "get weather in",
+                "get current weather",
+            ],
+            "tomorrow_weather": [
+                "tomorrow's weather",
+                "tomorrow weather",
+                "weather tomorrow",
+                "get weather tomorrow",
+                "what will tomorrow's weather",
+            ],
         }

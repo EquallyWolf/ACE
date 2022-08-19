@@ -64,3 +64,30 @@ class TestIntentModel:
     )
     def test_predict_close_app(self, text, expected):
         assert self.model.predict(text) == expected
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("Current weather", "current_weather"),
+            ("current weather conditions", "current_weather"),
+            ("weather in London", "current_weather"),
+            ("Get weather in Billingshurst", "current_weather"),
+            ("get current weather in Paris", "current_weather"),
+        ],
+    )
+    def test_predict_current_weather(self, text, expected):
+        assert self.model.predict(text) == expected
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("Tomorrow's weather", "tomorrow_weather"),
+            ("tomorrow's weather conditions", "tomorrow_weather"),
+            ("weather tomorrow in London", "tomorrow_weather"),
+            ("Get weather tomorrow in Billingshurst", "tomorrow_weather"),
+            ("what will tomorrow's weather be", "tomorrow_weather"),
+            ("tomorrow weather in Paris", "tomorrow_weather"),
+        ],
+    )
+    def test_predict_tomorrow_weather(self, text, expected):
+        assert self.model.predict(text) == expected
