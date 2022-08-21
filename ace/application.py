@@ -1,9 +1,13 @@
 import json
 import os
 import subprocess
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 
 import tomli
+
+
+class ExecutableMissingError(Exception):
+    pass
 
 
 @dataclass
@@ -36,6 +40,8 @@ class WindowsAppManager:
         """Closes the specified application."""
         for app in self.apps:
             if app_name.lower() in app.name.lower() or app_name.lower() in app.aliases:
+                if app.executable == "":
+                    raise ExecutableMissingError
                 return os.popen(" ".join(["taskkill", "/F", "/IM", app.executable]))
         raise FileNotFoundError(f"Could not find '{app_name}'.")
 

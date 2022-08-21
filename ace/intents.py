@@ -101,6 +101,8 @@ def close_app(text: str) -> str:
         return f"Closing '{app_name}'..."
     except FileNotFoundError:
         return f"Sorry, I can't close '{app_name}'. Is it running?"
+    except app.ExecutableMissingError:
+        return f"I was unable to find the executable for '{app_name}'. Is it defined in the app config?"
 
 
 @_register(requires_text=True)
