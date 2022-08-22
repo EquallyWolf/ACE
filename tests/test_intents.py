@@ -76,7 +76,7 @@ class TestOpenAppWindows:
 class TestCloseAppIntent:
     @staticmethod
     def test_intent_close_app_windows(monkeypatch):
-        monkeypatch.setattr("ace.application.os.popen", lambda x: None)
+        monkeypatch.setattr("ace.intents.app.WindowsAppManager.close", lambda *args: 0)
 
         response, exit_script = run_intent("close_app", "close Chrome")
 
@@ -86,7 +86,7 @@ class TestCloseAppIntent:
     @staticmethod
     def test_intent_close_app_unknown_platform(monkeypatch):
         monkeypatch.setattr("platform.system", lambda: "ABC123")
-        monkeypatch.setattr("ace.application.os.popen", lambda x: None)
+        monkeypatch.setattr("ace.intents.app.WindowsAppManager.close", lambda *args: 0)
 
         response, exit_script = run_intent("close_app", "close Chrome")
 
@@ -97,10 +97,38 @@ class TestCloseAppIntent:
         assert exit_script is False
 
     @staticmethod
-    def test_intent_close_app_windows_not_installed(monkeypatch):
+    def test_intent_close_app_windows_app_not_in_config(monkeypatch):
+        monkeypatch.setattr("ace.intents.app.WindowsAppManager.close", lambda *args: -1)
+
+        response, exit_script = run_intent("close_app", "close MissingEXE")
+
+        assert (
+            response
+            == "I was unable to find the executable for 'MissingEXE'. Is it defined in the app config?"
+        )
+
+        assert exit_script is False
+
+    @staticmethod
+    def test_intent_close_app_windows_app_not_running(monkeypatch):
+        monkeypatch.setattr(
+            "ace.intents.app.WindowsAppManager.close", lambda *args: 128
+        )
+
         response, exit_script = run_intent("close_app", "close UnknownApp")
 
-        assert response == "Sorry, I can't close 'UnknownApp'. Is it running?"
+        assert response == "Sorry, I'm can't close 'UnknownApp'. Is it running?"
+
+        assert exit_script is False
+
+    @staticmethod
+    def test_intent_close_app_windows_app_unknown_error(monkeypatch):
+        monkeypatch.setattr("ace.intents.app.WindowsAppManager.close", lambda *args: -2)
+
+        response, exit_script = run_intent("close_app", "close UnknownApp")
+
+        assert response == "Sorry, I am having trouble closing 'UnknownApp'."
+
         assert exit_script is False
 
 

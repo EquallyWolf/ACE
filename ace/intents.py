@@ -96,11 +96,15 @@ def close_app(text: str) -> str:
     except KeyError:
         return f"Sorry, I don't know how to close apps on this platform ({current_platform})."
 
-    try:
-        manager.close(app_name)
+    code = manager.close(app_name)
+    if code == 0:
         return f"Closing '{app_name}'..."
-    except FileNotFoundError:
-        return f"Sorry, I can't close '{app_name}'. Is it running?"
+    elif code == -1:
+        return f"I was unable to find the executable for '{app_name}'. Is it defined in the app config?"
+    elif code == 128:
+        return f"Sorry, I'm can't close '{app_name}'. Is it running?"
+    else:
+        return f"Sorry, I am having trouble closing '{app_name}'."
 
 
 @_register(requires_text=True)

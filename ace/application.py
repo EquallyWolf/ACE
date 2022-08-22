@@ -1,7 +1,7 @@
 import json
 import os
 import subprocess
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 
 import tomli
 
@@ -32,12 +32,17 @@ class WindowsAppManager:
                 return os.popen(f"start shell:AppsFolder\\{app.app_id}")
         raise FileNotFoundError(f"Could not find '{app_name}'.")
 
-    def close(self, app_name: str) -> None:
-        """Closes the specified application."""
+    def close(self, app_name: str) -> int:
+        """Closes the specified application and returns the exit code."""
         for app in self.apps:
             if app_name.lower() in app.name.lower() or app_name.lower() in app.aliases:
-                return os.popen(" ".join(["taskkill", "/F", "/IM", app.executable]))
-        raise FileNotFoundError(f"Could not find '{app_name}'.")
+                return (
+                    subprocess.run(
+                        ["taskkill", "/F", "/IM", app.executable], capture_output=True
+                    ).returncode
+                    if app.executable
+                    else -1
+                )
 
     @property
     def apps(self) -> list[App]:
