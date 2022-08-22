@@ -1,9 +1,11 @@
 [aliases]
+"Notepad" = ["notepad"]
 "Notepad++" = ["notepad", "notepad++", "notepad plus plus"]
 "Visual Studio Code" = ["vscode", "visual studio code", "code", "vs code"]
 "Chrome" = ["chrome", "google chrome", "google"]
 
 [executable]
+"Notepad" = "notepad.exe"
 "Notepad++" = "notepad++.exe"
 "Visual Studio Code" = "code.exe"
 "Chrome" = "chrome.exe"

@@ -37,7 +37,7 @@ class WindowsAppManager:
         for app in self.apps:
             if app_name.lower() in app.name.lower() or app_name.lower() in app.aliases:
                 return (
-                    os.subprocess(
+                    subprocess.run(
                         ["taskkill", "/F", "/IM", app.executable], capture_output=True
                     ).returncode
                     if app.executable
