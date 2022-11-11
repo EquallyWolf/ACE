@@ -140,7 +140,7 @@ class IntentClassifierModel:
             self._prepare_data()
 
         base_config = Path(self.config.base_config)
-        full_config = base_config.with_name("config")
+        full_config = base_config.with_name("config.cfg")
 
         if self.config.rebuild_config:
             os.system(
