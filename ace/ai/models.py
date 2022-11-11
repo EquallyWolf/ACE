@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import spacy
 import toml
@@ -33,7 +34,9 @@ class IntentClassifierModelConfig:
     mode: str = "train"
 
     @staticmethod
-    def from_toml(config_file: str | None = None) -> "IntentClassifierModelConfig":
+    def from_toml(
+        config_file: Union[str, None] = None
+    ) -> "IntentClassifierModelConfig":
         """
         Load the configuration from a TOML file. Leave the config_file parameter
         empty to load the configuration from the default location.
