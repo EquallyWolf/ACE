@@ -18,6 +18,49 @@ CONFIG_PATH = os.path.join("config", "ai.toml")
 class IntentClassifierModelConfig:
     """
     A dataclass to hold the configuration for the intent classifier.
+
+    Attributes
+    ----------
+        spacy_model: str
+            The name of the spaCy model to use.
+
+        data_path: Path
+            The path to the dataset file.
+
+        train_percentage: float
+            The percentage of the dataset to use for training.
+
+        train_data_save_path: str
+            The path to save the training data to.
+
+        test_data_save_path: str
+            The path to save the test data to.
+
+        rebuild_config: bool
+            Whether to rebuild the configuration or not.
+
+        rebuild_data: bool
+            Whether to rebuild the data or not.
+
+        best_model_location: str
+            The path to save the best model to.
+
+        threshold: float
+            The threshold to use for the intent classifier.
+
+        base_config: str
+            The path to the base configuration file.
+
+        output_dir: str
+            The path to save the model to.
+
+        mode: str
+            Whether to run the model in train or test mode.
+
+    Methods
+    ---------
+        from_toml(path: Union[str, Path]) -> IntentClassifierModelConfig
+            Load the configuration from the TOML file.
     """
 
     spacy_model: str = "en"
@@ -39,7 +82,7 @@ class IntentClassifierModelConfig:
     ) -> "IntentClassifierModelConfig":
         """
         Load the configuration from a TOML file. Leave the config_file parameter
-        empty to load the configuration from the default location.
+        empty to load the configuration from the default location: config/ai.toml.
 
         returns: An IntentClassifierModelConfig object.
         """
@@ -51,6 +94,19 @@ class IntentClassifierModel:
     """
     A class to represent a model that can classify the intents
     of the given text.
+
+    Attributes
+    ----------
+        config: IntentClassifierModelConfig
+            The configuration for the model.
+
+    Methods
+    ---------
+        predict(text: str)
+            Predict the intent of the given text.
+
+        train()
+            Train the model using the given configuration.
     """
 
     def __init__(
@@ -62,6 +118,8 @@ class IntentClassifierModel:
     def predict(self, text: str) -> str:
         """
         Predict the intent of the given text.
+
+        returns: The predicted intent as a string.
         """
         doc = self.nlp(text.strip().lower() if text else "")
         prediction = max(doc.cats, key=doc.cats.get)  # type: ignore
@@ -75,6 +133,8 @@ class IntentClassifierModel:
     def train(self) -> None:  # pragma: no cover
         """
         Prepares the data and trains the model using the given configuration.
+
+        returns: None
         """
         if self.config.rebuild_data:
             self._prepare_data()
@@ -97,7 +157,7 @@ class IntentClassifierModel:
         """
         Helper function to load the correct spaCy language model.
 
-        returns: A spaCy language model.
+        returns: A spaCy language model based on the given spaCy model name.
         """
         if self.config.mode == "train":
             return (
@@ -132,6 +192,8 @@ class IntentClassifierModel:
     def _prepare_data(self) -> None:  # pragma: no cover
         """
         Helper function to prepare and save the data for training and validation.
+
+        returns: None
         """
         dataset = data.IntentClassifierDataset(
             Path(self.config.data_path), shuffle=True

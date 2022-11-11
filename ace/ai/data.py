@@ -3,6 +3,20 @@ import pandas as pd
 
 
 class IntentClassifierDataset:
+    """
+    A class to store the dataset for the intent classifier.
+
+    Attributes:
+        file: Path
+            The path to the dataset file.
+
+        shuffle: bool
+            Whether to shuffle the dataset or not.
+
+        seed: int
+            The seed to use for shuffling the dataset.
+    """
+
     def __init__(self, file: Path, shuffle: bool = False, seed: int = 42) -> None:
         self._seed = seed
         self.data = self._load_data(file, shuffle)
