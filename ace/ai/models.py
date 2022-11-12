@@ -90,6 +90,31 @@ class IntentClassifierModelConfig:
         return IntentClassifierModelConfig(**config["IntentClassifierModelConfig"])
 
 
+@dataclass
+class NERModelConfig:
+    """
+    A dataclass to hold the configuration for the NER model.
+
+    Attributes
+    ----------
+        spacy_model: str
+            The name of the spaCy model to use.
+    """
+
+    spacy_model: str = "en_core_web_md"
+
+    @staticmethod
+    def from_toml(config_file: Union[str, None] = None) -> "NERModelConfig":
+        """
+        Load the configuration from a TOML file. Leave the config_file parameter
+        empty to load the configuration from the default location: config/ai.toml.
+
+        returns: An NERModelConfig object.
+        """
+        config = toml.load(config_file or CONFIG_PATH)
+        return NERModelConfig(**config["NERModelConfig"])
+
+
 class IntentClassifierModel:
     """
     A class to represent a model that can classify the intents
@@ -224,6 +249,53 @@ class IntentClassifierModel:
         return (
             sorted_predictions[0][1] - sorted_predictions[1][1]
         ) / sorted_predictions[0][1]
+
+
+class NERModel:
+
+    """
+    A class to represent a model that can extract named entities
+    from the given text.
+
+    Attributes
+    ----------
+        config: NERModelConfig
+            The configuration for the model.
+
+    Methods
+    ---------
+        predict(text: str)
+            Predict the named entities of the given text.
+
+        train()
+            Train the model using the given configuration.
+    """
+
+    def __init__(self, config: NERModelConfig = NERModelConfig()) -> None:
+        self.config = config
+        self.nlp = self._load_spacy_model(self.config.spacy_model)
+
+    def predict(self, text: str) -> list[tuple[str, str]]:
+        """
+        Predict the named entities of the given text.
+
+        returns: A list of tuples containing the named entity and its label, empty list
+        if no entities found.
+        """
+        doc = self.nlp(text.strip() if text else "")
+        return [(ent.text, ent.label_) for ent in doc.ents]
+
+    def _load_spacy_model(
+        self, spacy_model: str = "en"
+    ) -> spacy.language.Language:  # pragma: no cover
+        """
+        Helper function to load the correct spaCy language model.
+
+        returns: A spaCy language model based on the given spaCy model name.
+        """
+        return (
+            spacy.blank(spacy_model) if spacy_model == "en" else spacy.load(spacy_model)
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

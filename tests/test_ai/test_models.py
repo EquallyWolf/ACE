@@ -1,6 +1,11 @@
 import pytest
 
-from ace.ai.models import IntentClassifierModel, IntentClassifierModelConfig
+from ace.ai.models import (
+    IntentClassifierModel,
+    IntentClassifierModelConfig,
+    NERModel,
+    NERModelConfig,
+)
 
 
 class TestIntentClassifierModel:
@@ -104,3 +109,26 @@ class TestIntentClassifierModel:
     )
     def test_predict_tomorrows_weather(self, text):
         assert self.model.predict(text) == "tomorrow_weather"
+
+
+class TestNERModel:
+    model = NERModel(NERModelConfig.from_toml())
+
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("", []),
+            (" ", []),
+            ("  ", []),
+            (None, []),
+            ("Weather now", []),
+            ("is there rain forecast?", []),
+            ("Weather in London", [("London", "GPE")]),
+            ("Tomorrow's weather in Paris", [("Tomorrow", "DATE"), ("Paris", "GPE")]),
+            ("Find the weather in New York", [("New York", "GPE")]),
+            ("Weather tomorrow", [("tomorrow", "DATE")]),
+            ("will it rain tomorrow?", [("tomorrow", "DATE")]),
+        ],
+    )
+    def test_predict(self, text, expected):
+        assert self.model.predict(text) == expected
