@@ -129,7 +129,7 @@ def current_weather(text: str) -> str:
             return "The configured weather API key is invalid. Please check the 'ACE_WEATHER_KEY' environment variable."
 
         elif response["code"] == "404":
-            return "Couldn't find that location. Check the spelling and try again."
+            return f"Couldn't find weather data for that location ({location}). Check the spelling and try again."
 
         elif response["code"] == "429":
             return "The configured weather API key has been used too many times. Please wait and try again."
@@ -157,7 +157,7 @@ def tomorrow_weather(text: str) -> str:
             return "The configured weather API key is invalid. Please check the 'ACE_WEATHER_KEY' environment variable."
 
         elif response["code"] == "404":
-            return "Couldn't find that location. Check the spelling and try again."
+            return f"Couldn't find weather data for that location ({location}). Check the spelling and try again."
 
         elif response["code"] == "429":
             return "The configured weather API key has been used too many times. Please wait and try again."
