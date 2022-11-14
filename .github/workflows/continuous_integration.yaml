@@ -32,7 +32,9 @@ jobs:
               run: poetry -V
 
             - name: Install dependencies
-              run: python -m poetry install
+              run: |
+                  python -m poetry install
+                  python -m poetry run python -m spacy download en_core_web_md
 
             - name: Test with pytest
               run: poetry run python -m pytest tests

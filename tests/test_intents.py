@@ -170,7 +170,8 @@ class TestCurrentWeatherIntent:
         )
 
         assert (
-            response == "Couldn't find that location. Check the spelling and try again."
+            response
+            == "Couldn't find weather data for that location (London). Check the spelling and try again."
         )
         assert exit_script is False
 
@@ -316,7 +317,8 @@ class TestTomorrowWeatherIntent:
         )
 
         assert (
-            response == "Couldn't find that location. Check the spelling and try again."
+            response
+            == "Couldn't find weather data for that location (London). Check the spelling and try again."
         )
         assert exit_script is False
 

@@ -1,15 +1,17 @@
+import os
 import platform
-import re
 from collections import namedtuple
 from typing import Callable
 
 import ace.application as app
+from ace.ai.models import NERModel, NERModelConfig
 from ace.apis import WeatherAPI
 
 DEGREES = "\N{DEGREE SIGN}"
 
 app_factory = app.AppManagerFactory()
 weather_api = WeatherAPI()
+ner_model = NERModel(NERModelConfig.from_toml())
 
 Intent = namedtuple("Intent", ["func", "should_exit", "requires_text"])
 intent_funcs: dict[str, Intent] = {}
@@ -109,21 +111,13 @@ def close_app(text: str) -> str:
 
 @_register(requires_text=True)
 def current_weather(text: str) -> str:
-    stop_words = [
-        "current weather in",
-        "get current weather",
-        "current weather conditions",
-        "current weather",
-        "get weather in",
-        "weather in",
-        " in ",
-        " in",
-        "in ",
-    ]
+    entities = ner_model.predict(text)
+    location = next(
+        (entity[0] for entity in entities if entity[1] == "GPE"),
+        os.environ.get("ACE_LOCATION", None),
+    )
 
-    if response := weather_api.get_current_weather(
-        re.sub("|".join(stop_words), "", text, flags=re.IGNORECASE).replace(" ", "")
-    ):
+    if response := weather_api.get_current_weather(location):  # type: ignore
 
         if response["code"] == "200":
 
@@ -135,7 +129,7 @@ def current_weather(text: str) -> str:
             return "The configured weather API key is invalid. Please check the 'ACE_WEATHER_KEY' environment variable."
 
         elif response["code"] == "404":
-            return "Couldn't find that location. Check the spelling and try again."
+            return f"Couldn't find weather data for that location ({location}). Check the spelling and try again."
 
         elif response["code"] == "429":
             return "The configured weather API key has been used too many times. Please wait and try again."
@@ -145,25 +139,13 @@ def current_weather(text: str) -> str:
 
 @_register(requires_text=True)
 def tomorrow_weather(text: str) -> str:
-    stop_words = [
-        "tomorrow's weather",
-        "tomorrow weather in",
-        "get tomorrow weather",
-        "tomorrow weather conditions",
-        "tomorrow weather",
-        "get weather tomorrow",
-        "weather tomorrow",
-        " tomorrow ",
-        " tomorrow",
-        "tomorrow ",
-        " in ",
-        " in",
-        "in ",
-    ]
+    entities = ner_model.predict(text)
+    location = next(
+        (entity[0] for entity in entities if entity[1] == "GPE"),
+        os.environ.get("ACE_LOCATION", None),
+    )
 
-    if response := weather_api.get_tomorrow_weather(
-        re.sub("|".join(stop_words), "", text, flags=re.IGNORECASE).replace(" ", "")
-    ):
+    if response := weather_api.get_tomorrow_weather(location):  # type: ignore
 
         if response["code"] == "200":
 
@@ -175,7 +157,7 @@ def tomorrow_weather(text: str) -> str:
             return "The configured weather API key is invalid. Please check the 'ACE_WEATHER_KEY' environment variable."
 
         elif response["code"] == "404":
-            return "Couldn't find that location. Check the spelling and try again."
+            return f"Couldn't find weather data for that location ({location}). Check the spelling and try again."
 
         elif response["code"] == "429":
             return "The configured weather API key has been used too many times. Please wait and try again."

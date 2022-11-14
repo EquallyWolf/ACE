@@ -11,3 +11,6 @@ threshold = 0.6                                   # how confident the model must
 base_config = "config/intents/base_config.cfg"    # path to the spacy config file
 output_dir = "models/intents"                     # path to the output directory
 mode = "test"                                     # whether to "train" or "test" the model
+
+[NERModelConfig]
+spacy_model = "en_core_web_md" # to load a blank model, use "en"
