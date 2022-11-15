@@ -73,3 +73,16 @@ weather in London tomorrow,tomorrow_weather
 what will tomorrows weather be like,tomorrow_weather
 weather in Paris tomorrow,tomorrow_weather
 get tomorrows weather,tomorrow_weather
+show my todo list,show_todo_list
+show my todo list for today,show_todo_list
+what is on my todo list,show_todo_list
+to-do list,show_todo_list
+get to-do list,show_todo_list
+do i have any tasks,show_todo_list
+show tasks,show_todo_list
+any tasks left today,show_todo_list
+today's tasks,show_todo_list
+todays to-do list,show_todo_list
+any todos left,show_todo_list
+todays todos,show_todo_list
+get todays tasks,show_todo_list

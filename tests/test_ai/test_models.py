@@ -110,6 +110,20 @@ class TestIntentClassifierModel:
     def test_predict_tomorrows_weather(self, text):
         assert self.model.predict(text) == "tomorrow_weather"
 
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Show my todo list",
+            "Get the to do list",
+            "GET TASKS",
+            "show tasks",
+            "Todays TODOs",
+            "What is on my todo list?",
+        ],
+    )
+    def test_predict_show_todo_list(self, text):
+        assert self.model.predict(text) == "show_todo_list"
+
 
 class TestNERModel:
     model = NERModel(NERModelConfig.from_toml())

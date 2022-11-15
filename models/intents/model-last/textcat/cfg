@@ -1,10 +1,11 @@
 {
   "labels":[
+    "current_weather",
+    "show_todo_list",
+    "greeting",
+    "close_app",
     "open_app",
     "tomorrow_weather",
-    "greeting",
-    "current_weather",
-    "close_app",
     "goodbye"
   ],
   "threshold":0.5,
