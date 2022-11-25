@@ -2,9 +2,12 @@ import json
 from platform import system
 
 import pytest
-from ace.intents import run_intent
 from freezegun import freeze_time
 from pytest import mark
+from requests.exceptions import ConnectionError, HTTPError
+from todoist_api_python.models import Due, Task
+
+from ace.intents import run_intent
 
 
 def test_unknown_intent():
@@ -424,4 +427,118 @@ class TestTomorrowWeatherIntent:
         response, exit_script = run_intent("tomorrow_weather", text)
 
         assert response == expected
+        assert exit_script is False
+
+
+@freeze_time("15-11-2022 08:00:00")
+class TestShowTodoList:
+    todo_response_file = "tests/data/todo/todo_response.json"
+
+    @pytest.fixture
+    def mock_todo_response_no_tasks(self, mocker):
+        api = mocker.MagicMock()
+
+        with open(self.todo_response_file) as f:
+            tasks = json.load(f)["NO_TASKS"]
+
+        api.get_tasks.return_value = tasks
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    @pytest.fixture
+    def mock_todo_response_one_task(self, mocker):
+        api = mocker.MagicMock()
+
+        with open(self.todo_response_file) as f:
+            tasks = json.load(f)["ONE_TASK"]
+
+        api.get_tasks.return_value = [Task(**tasks["TASK"], due=Due(**tasks["DUE"]))]
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    @pytest.fixture
+    def mock_todo_response_multiple_tasks(self, mocker):
+        api = mocker.MagicMock()
+
+        with open(self.todo_response_file) as f:
+            tasks = json.load(f)["MULTIPLE_TASKS"]
+
+        api.get_tasks.return_value = [
+            Task(**task["TASK"], due=Due(**task["DUE"])) for task in tasks
+        ]
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_connection_error(self, mocker):
+        api = mocker.MagicMock()
+
+        api.get_tasks.side_effect = ConnectionError("Test exception")
+        api.get_tasks.return_value = []
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_http_error(self, mocker):
+        api = mocker.MagicMock()
+
+        api.get_tasks.side_effect = HTTPError("Test exception")
+        api.get_tasks.return_value = []
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_unknown_error(self, mocker):
+        api = mocker.MagicMock()
+
+        api.get_tasks.side_effect = Exception("Test exception.")
+        api.get_tasks.return_value = []
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+
+    def test_show_todo_list_success_no_tasks(self, mock_todo_response_no_tasks):
+        response, exit_script = run_intent("show_todo_list")
+
+        assert response == "You have no tasks today."
+        assert exit_script is False
+
+    def test_show_todo_list_success_one_task(self, mock_todo_response_one_task):
+        response, exit_script = run_intent("show_todo_list")
+
+        assert response == "You have 1 task today. The task is 'Task 1'."
+        assert exit_script is False
+
+    def test_show_todo_list_success_multiple_tasks(
+        self, mock_todo_response_multiple_tasks
+    ):
+        response, exit_script = run_intent("show_todo_list")
+
+        assert response == "You have 2 tasks today. The first one is 'Task 1'."
+        assert exit_script is False
+
+    def test_show_todo_list_raise_exception_connection_error(
+        self, mock_todo_response_raise_exception_connection_error
+    ):
+        response, exit_script = run_intent("show_todo_list")
+        assert (
+            response
+            == "Sorry, I couldn't get your tasks. Connection error: Check your internet connection."
+        )
+        assert exit_script is False
+
+    def test_show_todo_list_raise_exception_http_error(
+        self, mock_todo_response_raise_exception_http_error
+    ):
+        response, exit_script = run_intent("show_todo_list")
+        assert (
+            response
+            == "Sorry, I couldn't get your tasks. API key error: Check your API key."
+        )
+        assert exit_script is False
+
+    def test_show_todo_list_raise_exception_unknown_error(
+        self, mock_todo_response_raise_exception_unknown_error
+    ):
+        response, exit_script = run_intent("show_todo_list")
+        assert response == "Sorry, I couldn't get your tasks. Test exception."
         assert exit_script is False
