@@ -432,10 +432,11 @@ class TestTomorrowWeatherIntent:
 
 @freeze_time("15-11-2022 08:00:00")
 class TestShowTodoList:
+    environment = {"ACE_TODO_API_KEY": "123456789"}
     todo_response_file = "tests/data/todo/todo_response.json"
 
     @pytest.fixture
-    def mock_todo_response_no_tasks(self, mocker):
+    def mock_todo_response_no_tasks(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         with open(self.todo_response_file) as f:
@@ -444,9 +445,10 @@ class TestShowTodoList:
         api.get_tasks.return_value = tasks
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_one_task(self, mocker):
+    def mock_todo_response_one_task(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         with open(self.todo_response_file) as f:
@@ -455,9 +457,10 @@ class TestShowTodoList:
         api.get_tasks.return_value = [Task(**tasks["TASK"], due=Due(**tasks["DUE"]))]
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_multiple_tasks(self, mocker):
+    def mock_todo_response_multiple_tasks(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         with open(self.todo_response_file) as f:
@@ -468,33 +471,37 @@ class TestShowTodoList:
         ]
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_raise_exception_connection_error(self, mocker):
+    def mock_todo_response_raise_exception_connection_error(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         api.get_tasks.side_effect = ConnectionError("Test exception")
         api.get_tasks.return_value = []
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_raise_exception_http_error(self, mocker):
+    def mock_todo_response_raise_exception_http_error(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         api.get_tasks.side_effect = HTTPError("Test exception")
         api.get_tasks.return_value = []
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_raise_exception_unknown_error(self, mocker):
+    def mock_todo_response_raise_exception_unknown_error(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
         api.get_tasks.side_effect = Exception("Test exception.")
         api.get_tasks.return_value = []
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     def test_show_todo_list_success_no_tasks(self, mock_todo_response_no_tasks):
         response, exit_script = run_intent("show_todo_list")
