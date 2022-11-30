@@ -58,14 +58,15 @@ To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) docume
 
 ## Features
 
-|                | Intent           | Description                                  | Example                      | Notes                                                 |
-| -------------- | ---------------- | -------------------------------------------- | ---------------------------- | ----------------------------------------------------- |
-| :wave:         | greeting         | respond with a greeting message              | hello                        |                                                       |
-| :runner:       | goodbye          | respond with a goodbye message and then exit | goodbye                      |                                                       |
-| :computer:     | open_app         | open the specified application               | open excel                   | **Only available on windows**                         |
-| :computer:     | close_app        | close the specified application              | close notepad                | **Only available on windows**                         |
-| :partly_sunny: | current_weather  | get the current weather for a location       | current weather in London    | **See [Weather](#weather) section for setup details** |
-| :partly_sunny: | tomorrow_weather | get tomorrow's weather for a location        | tomorrow's weather in London | **See [Weather](#weather) section for setup details** |
+|                | Intent           | Description                                                  | Example                      | Notes                                                     |
+| -------------- | ---------------- | ------------------------------------------------------------ | ---------------------------- | --------------------------------------------------------- |
+| :wave:         | greeting         | respond with a greeting message                              | hello                        |                                                           |
+| :runner:       | goodbye          | respond with a goodbye message and then exit                 | goodbye                      |                                                           |
+| :computer:     | open_app         | open the specified application                               | open excel                   | **Only available on windows**                             |
+| :computer:     | close_app        | close the specified application                              | close notepad                | **Only available on windows**                             |
+| :partly_sunny: | current_weather  | get the current weather for a location                       | current weather in London    | **See [Weather](#weather) section for setup details**     |
+| :partly_sunny: | tomorrow_weather | get tomorrow's weather for a location                        | tomorrow's weather in London | **See [Weather](#weather) section for setup details**     |
+| :clipboard:    | show_todo_list   | show the count of items in the todo list, and the first item | show todo list               | **See [Todo List](#todo-list) section for setup details** |
 
 ## Weather
 
@@ -74,6 +75,21 @@ To set up the weather intent, you must set the following environment variables:
 | --- | --- | --- |
 | `ACE_HOME` | London | The default location for the weather intent, if no location is specified. |
 | `ACE_WEATHER_KEY` | 822fc8446f5adc72ac8c766a871329a8 | The API key for the [OpenWeatherMap API](https://openweathermap.org/api) |
+
+For Unix/Linux follow this link to set the environment variables:
+
+-   https://www.tutorialspoint.com/unix/unix-environment.html
+
+For Windows follow this link to set the environment variables:
+
+-   https://www.computerhope.com/issues/ch000549.html
+
+## Todo List
+
+To set up the todo list intent, you must set the following environment variables:
+| Variable | Example | Description |
+| --- | --- | --- |
+| `ACE_TODO_API_KEY` | 822fc8446f5adc72ac8c766a871329a8 | The API key for the [Todoist API](https://developer.todoist.com/sync/v9/) |
 
 For Unix/Linux follow this link to set the environment variables:
 
