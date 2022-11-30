@@ -484,10 +484,10 @@ class TestShowTodoList:
         monkeypatch.setattr("ace.apis.os.environ", self.environment)
 
     @pytest.fixture
-    def mock_todo_response_raise_exception_http_error(self, mocker, monkeypatch):
+    def mock_todo_response_raise_exception_key_error(self, mocker, monkeypatch):
         api = mocker.MagicMock()
 
-        api.get_tasks.side_effect = HTTPError("Test exception")
+        api.get_tasks.side_effect = KeyError("Test exception")
         api.get_tasks.return_value = []
 
         mocker.patch("ace.apis.TodoistAPI", return_value=api)
@@ -533,19 +533,18 @@ class TestShowTodoList:
         )
         assert exit_script is False
 
-    def test_show_todo_list_raise_exception_http_error(
-        self, mock_todo_response_raise_exception_http_error
+    def test_show_todo_list_raise_exception_key_error(
+        self, mock_todo_response_raise_exception_key_error
     ):
         response, exit_script = run_intent("show_todo_list")
         assert (
             response
-            == "Sorry, I couldn't get your tasks. API key error: Check your API key."
+            == "Sorry, I couldn't get your tasks. API key error: Check your API key is setup correctly."
         )
         assert exit_script is False
 
     def test_show_todo_list_raise_exception_unknown_error(
         self, mock_todo_response_raise_exception_unknown_error
     ):
-        response, exit_script = run_intent("show_todo_list")
-        assert response == "Sorry, I couldn't get your tasks. Test exception."
-        assert exit_script is False
+        with pytest.raises(Exception):
+            run_intent("show_todo_list")

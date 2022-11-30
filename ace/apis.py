@@ -170,11 +170,8 @@ class TodoAPI:
         except requests.exceptions.ConnectionError:
             return {"error": "Connection error: Check your internet connection."}
 
-        except requests.exceptions.HTTPError:
-            return {"error": "API key error: Check your API key."}
-
-        except Exception as e:
-            return {"error": e}
+        except KeyError:
+            return {"error": "API key error: Check your API key is setup correctly."}
 
     def _clean_task_content(self, task_content: str) -> str:
         """
