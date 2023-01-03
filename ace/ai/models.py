@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
+from statistics import stdev, mean
 
 import spacy
 import toml
@@ -236,19 +237,20 @@ class IntentClassifierModel:
 
     def _confidence(self, predictions: dict) -> float:  # pragma: no cover
         """
-        Helper function to calculate the difference between the highest and second
-        highest confidence scores.
+        Helper function to calculate the confidence of the model's prediction.
+        This is done by getting the standard deviation of the prediction and
+        dividing it by the mean of the predictions.
 
-        returns: The percentage difference between the highest and second highest
+        returns: confidence score as a float.
         """
         sorted_predictions = sorted(
             predictions.items(), key=lambda x: x[1], reverse=True
         )
         if all(x[1] == 0 for x in sorted_predictions):
             return 0
-        return (
-            sorted_predictions[0][1] - sorted_predictions[1][1]
-        ) / sorted_predictions[0][1]
+        return stdev([x[1] for x in sorted_predictions]) / mean(
+            [x[1] for x in sorted_predictions]
+        )
 
 
 class NERModel:
