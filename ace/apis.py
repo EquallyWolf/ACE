@@ -173,6 +173,29 @@ class TodoAPI:
         except KeyError:
             return {"error": "API key error: Check your API key is setup correctly."}
 
+    def add_task(self, task: str) -> dict:
+        """
+        Adds a task to the todoist inbox.
+
+        returns: a dictionary with the keys "error" and "task".
+        If there was an error, the value of "error" will be a string containing
+        the error message. Otherwise, the value of "error" will be empty and the
+        value of "task" will be a string containing the task.
+        """
+        try:
+            task = TodoistAPI(os.environ["ACE_TODO_API_KEY"]).add_task(task, description="Add from ACE")  # type: ignore
+
+            return {
+                "error": None,
+                "task": self._clean_task_content(task["content"] if type(task) is dict else task.content),  # type: ignore
+            }
+
+        except requests.exceptions.ConnectionError:
+            return {"error": "Connection error: Check your internet connection."}
+
+        except KeyError:
+            return {"error": "API key error: Check your API key is setup correctly."}
+
     def _clean_task_content(self, task_content: str) -> str:
         """
         Helper function to clean up the task content.

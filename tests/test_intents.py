@@ -548,3 +548,108 @@ class TestShowTodoList:
     ):
         with pytest.raises(Exception):
             run_intent("show_todo_list")
+
+
+@freeze_time("15-11-2022 08:00:00")
+class TestAddTodo:
+    environment = {"ACE_TODO_API_KEY": "123456789"}
+    todo_response_file = "tests/data/todo/todo_add_tasks.json"
+
+    @pytest.fixture
+    def mock_todo_response_add_task(self, mocker, monkeypatch):
+        api = mocker.MagicMock()
+
+        with open(self.todo_response_file) as f:
+            api.add_task.return_value = json.load(f)["TASK"]
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_connection_error(self, mocker, monkeypatch):
+        api = mocker.MagicMock()
+
+        api.add_task.side_effect = ConnectionError("Test exception")
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_key_error(self, mocker, monkeypatch):
+        api = mocker.MagicMock()
+
+        api.add_task.side_effect = KeyError("Test exception")
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
+
+    @pytest.fixture
+    def mock_todo_response_raise_exception_unknown_error(self, mocker, monkeypatch):
+        api = mocker.MagicMock()
+
+        api.add_task.side_effect = Exception("Test exception.")
+
+        mocker.patch("ace.apis.TodoistAPI", return_value=api)
+        monkeypatch.setattr("ace.apis.os.environ", self.environment)
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "add Task 1 to task list",
+            "Add Task 1 to task list",
+            "add Task 1 to todo list",
+            "add Task 1 to my todo list",
+            "add Task 1 to to-do list",
+            "add Task 1 to the tasks list",
+            "add Task 1 to my to do list",
+            "add to my todo list Task 1",
+            "add to my to do Task 1",
+            "add to to-do list Task 1",
+            "add the task Task 1 to my to-do list",
+            "add the task Task 1 to my to do list",
+            "add Task 1 to my task list",
+            "add task Task 1 to task list",
+            "add Task 1 to tasks",
+            "add Task 1 to my tasks",
+            "add Task 1 to my to-do list",
+            "Add Task 1 to to-do list",
+            "add task Task 1 to task list",
+            "Please add Task 1 to tasks",
+        ],
+    )
+    def test_add_todo_success(self, mock_todo_response_add_task, text):
+        response, exit_script = run_intent("add_todo", text)
+
+        assert response == "Added 'Task 1' to your to-do list."
+        assert exit_script is False
+
+    def test_add_todo_raise_exception_connection_error(
+        self, mock_todo_response_raise_exception_connection_error
+    ):
+        response, exit_script = run_intent("add_todo", "add Task 1 to task list")
+        assert (
+            response
+            == "Sorry, I couldn't add your task. Connection error: Check your internet connection."
+        )
+        assert exit_script is False
+
+    def test_add_todo_raise_exception_key_error(
+        self, mock_todo_response_raise_exception_key_error
+    ):
+        response, exit_script = run_intent("add_todo", "add Task 1 to task list")
+        assert (
+            response
+            == "Sorry, I couldn't add your task. API key error: Check your API key is setup correctly."
+        )
+        assert exit_script is False
+
+    def test_add_todo_raise_exception_unknown_error(
+        self, mock_todo_response_raise_exception_unknown_error
+    ):
+        with pytest.raises(Exception):
+            run_intent("add_todo", "add Task 1 to task list")
+
+    def test_add_todo_no_task(self):
+        response, exit_script = run_intent("add_todo", "add to task list")
+        assert response == "Sorry, I can't understand which task you wanted to add."
+        assert exit_script is False
