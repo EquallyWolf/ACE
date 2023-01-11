@@ -58,15 +58,16 @@ To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) docume
 
 ## Features
 
-|                | Intent           | Description                                                  | Example                      | Notes                                                     |
-| -------------- | ---------------- | ------------------------------------------------------------ | ---------------------------- | --------------------------------------------------------- |
-| :wave:         | greeting         | respond with a greeting message                              | hello                        |                                                           |
-| :runner:       | goodbye          | respond with a goodbye message and then exit                 | goodbye                      |                                                           |
-| :computer:     | open_app         | open the specified application                               | open excel                   | **Only available on windows**                             |
-| :computer:     | close_app        | close the specified application                              | close notepad                | **Only available on windows**                             |
-| :partly_sunny: | current_weather  | get the current weather for a location                       | current weather in London    | **See [Weather](#weather) section for setup details**     |
-| :partly_sunny: | tomorrow_weather | get tomorrow's weather for a location                        | tomorrow's weather in London | **See [Weather](#weather) section for setup details**     |
-| :clipboard:    | show_todo_list   | show the count of items in the todo list, and the first item | show todo list               | **See [Todo List](#todo-list) section for setup details** |
+|                | Intent           | Description                                                  | Example                      | Notes                                                                                              |
+| -------------- | ---------------- | ------------------------------------------------------------ | ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| :wave:         | greeting         | respond with a greeting message                              | hello                        |                                                                                                    |
+| :runner:       | goodbye          | respond with a goodbye message and then exit                 | goodbye                      |                                                                                                    |
+| :computer:     | open_app         | open the specified application                               | open excel                   | **Only available on windows**                                                                      |
+| :computer:     | close_app        | close the specified application                              | close notepad                | **Only available on windows**                                                                      |
+| :partly_sunny: | current_weather  | get the current weather for a location                       | current weather in London    | **See [Weather](#weather) section for setup details**                                              |
+| :partly_sunny: | tomorrow_weather | get tomorrow's weather for a location                        | tomorrow's weather in London | **See [Weather](#weather) section for setup details**                                              |
+| :clipboard:    | show_todo_list   | show the count of items in the todo list, and the first item | show todo list               | **See [Todo List](#todo-list) section for setup details**                                          |
+| :clipboard:    | add_todo         | add an item to the todo list                                 | add Task 1 to todo list      | This will add 'Task 1' to the todo list. **See [Todo List](#todo-list) section for setup details** |
 
 ## Weather
 
