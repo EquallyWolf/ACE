@@ -54,7 +54,7 @@ $ poetry run python main.py
 
 ### Extending ACE
 
-To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) document.
+To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) document. <!-- markdown-link-check-disable-line -->
 
 ## Features
 
@@ -83,7 +83,7 @@ For Unix/Linux follow this link to set the environment variables:
 
 For Windows follow this link to set the environment variables:
 
--   https://www.computerhope.com/issues/ch000549.html
+-   https://www.computerhope.com/issues/ch000549.htm
 
 ## Todo List
 
@@ -94,8 +94,8 @@ To set up the todo list intent, you must set the following environment variables
 
 For Unix/Linux follow this link to set the environment variables:
 
--   https://www.tutorialspoint.com/unix/unix-environment.html
+-   https://www.tutorialspoint.com/unix/unix-environment.htm
 
 For Windows follow this link to set the environment variables:
 
--   https://www.computerhope.com/issues/ch000549.html
+-   https://www.computerhope.com/issues/ch000549.htm
