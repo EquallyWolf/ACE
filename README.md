@@ -54,7 +54,7 @@ $ poetry run python main.py
 
 ### Extending ACE
 
-To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) document.
+To extend ACE, please refer to the [Extending ACE](docs/EXTENDING_ACE.md) document. <!-- markdown-link-check-disable-line -->
 
 ## Features
 
