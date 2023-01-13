@@ -1,0 +1,113 @@
+{
+    "NO_TASKS": [],
+    "ONE_TASK": {
+        "TASK": {
+            "assignee_id": "",
+            "assigner_id": "",
+            "comment_count": 0,
+            "is_completed": false,
+            "content": "Task 1",
+            "created_at": "2021-11-15T08:00:00Z",
+            "creator_id": "1",
+            "description": "",
+            "id": "1",
+            "labels": [],
+            "order": 1,
+            "parent_id": "",
+            "priority": 1,
+            "project_id": "1",
+            "section_id": "",
+            "url": "https://todoist.com/showTask?id:1"
+        },
+        "DUE": {
+            "date": "2021-11-15",
+            "is_recurring": false,
+            "string": "15 Nov",
+            "datetime": "",
+            "timezone": ""
+        }
+    },
+    "MULTIPLE_TASKS": [
+        {
+            "TASK": {
+                "assignee_id": "",
+                "assigner_id": "",
+                "comment_count": 0,
+                "is_completed": false,
+                "content": "Task 1",
+                "created_at": "2021-11-15T08:00:00Z",
+                "creator_id": "1",
+                "description": "",
+                "id": "1",
+                "labels": [],
+                "order": 2,
+                "parent_id": "",
+                "priority": 1,
+                "project_id": "1",
+                "section_id": "",
+                "url": "https://todoist.com/showTask?id:1"
+            },
+            "DUE": {
+                "date": "2021-11-15",
+                "is_recurring": false,
+                "string": "15 Nov",
+                "datetime": "",
+                "timezone": ""
+            }
+        },
+        {
+            "TASK": {
+                "assignee_id": "",
+                "assigner_id": "",
+                "comment_count": 0,
+                "is_completed": false,
+                "content": "Task 2",
+                "created_at": "2021-11-15T08:00:00Z",
+                "creator_id": "1",
+                "description": "",
+                "id": "2",
+                "labels": [],
+                "order": 2,
+                "parent_id": "",
+                "priority": 1,
+                "project_id": "1",
+                "section_id": "",
+                "url": "https://todoist.com/showTask?id:2"
+            },
+            "DUE": {
+                "date": "2021-11-15",
+                "is_recurring": false,
+                "string": "15 Nov",
+                "datetime": "",
+                "timezone": ""
+            }
+        },
+        {
+            "TASK": {
+                "assignee_id": "",
+                "assigner_id": "",
+                "comment_count": 0,
+                "is_completed": false,
+                "content": "* Non-completable task 3",
+                "created_at": "2021-11-15T08:00:00Z",
+                "creator_id": "1",
+                "description": "",
+                "id": "3",
+                "labels": [],
+                "order": 3,
+                "parent_id": "",
+                "priority": 1,
+                "project_id": "1",
+                "section_id": "",
+                "url": "https://todoist.com/showTask?id:3"
+            },
+            "DUE": {
+                "date": "2021-11-15",
+                "is_recurring": false,
+                "string": "15 Nov",
+                "datetime": "",
+                "timezone": ""
+            }
+        }
+    ]
+}

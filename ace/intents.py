@@ -5,13 +5,27 @@ from typing import Callable
 
 import ace.application as app
 from ace.ai.models import NERModel, NERModelConfig
-from ace.apis import WeatherAPI
+from ace.apis import TodoAPI, WeatherAPI
+from ace.utils import TextProcessor
 
 DEGREES = "\N{DEGREE SIGN}"
+ADD_TODO_PATTERNS = [
+    r"add the task (?P<TASK_ITEM>.+) to my (todo|to-do|to do|task|tasks)",
+    r"(add todo|add to-do|add to do|add task|add tasks) (?P<TASK_ITEM>.+) to (todo|to-do|to do|task|tasks)",
+    r"add to my (todo|to-do|to do|task|tasks) list (?P<TASK_ITEM>.+)",
+    r"add to my (todo|to-do|to do|task|tasks) (?P<TASK_ITEM>.+)",
+    r"add to (todo|to-do|to do|task|tasks) list (?P<TASK_ITEM>.+)",
+    r"add (?P<TASK_ITEM>.+) to my (todo|to-do|to do|task|tasks) list",
+    r"add (?P<TASK_ITEM>.+) to the (todo|to-do|to do|task|tasks) list",
+    r"add (?P<TASK_ITEM>.+) to my (todo|to-do|to do|task|tasks)",
+    r"add (?P<TASK_ITEM>.+) to (todo|to-do|to do|task|tasks)",
+]
 
 app_factory = app.AppManagerFactory()
 weather_api = WeatherAPI()
+todo_api = TodoAPI()
 ner_model = NERModel(NERModelConfig.from_toml())
+text_processor = TextProcessor()
 
 Intent = namedtuple("Intent", ["func", "should_exit", "requires_text"])
 intent_funcs: dict[str, Intent] = {}
@@ -163,6 +177,38 @@ def tomorrow_weather(text: str) -> str:
             return "The configured weather API key has been used too many times. Please wait and try again."
 
     return "Sorry, I couldn't get the weather for you. Check your connection and try again."
+
+
+@_register()
+def show_todo_list() -> str:
+    task_list = todo_api.tasks_today()
+
+    if task_list["error"]:
+        return f"Sorry, I couldn't get your tasks. {task_list['error']}"
+
+    if total_tasks := len(task_list["tasks"]):
+        first_task = task_list["tasks"][0]
+
+        return (
+            f"You have {total_tasks} task today. The task is '{first_task}'."
+            if total_tasks == 1
+            else f"You have {total_tasks} tasks today. The first one is '{first_task}'."
+        )
+    return "You have no tasks today."
+
+
+@_register(requires_text=True)
+def add_todo(text: str) -> str:
+    if task := text_processor.find_match(text, ADD_TODO_PATTERNS, "TASK_ITEM"):
+
+        task_item = todo_api.add_task(task.removeprefix("add").strip())
+
+        if task_item["error"]:
+            return f"Sorry, I couldn't add your task. {task_item['error']}"
+
+        return f"Added '{task_item['task']}' to your to-do list."
+
+    return "Sorry, I can't understand which task you wanted to add."
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -18,12 +18,14 @@
   },
   "labels":{
     "textcat":[
-      "open_app",
-      "tomorrow_weather",
-      "greeting",
-      "current_weather",
       "close_app",
-      "goodbye"
+      "show_todo_list",
+      "open_app",
+      "greeting",
+      "goodbye",
+      "current_weather",
+      "add_todo",
+      "tomorrow_weather"
     ]
   },
   "pipeline":[
@@ -36,37 +38,32 @@
 
   ],
   "performance":{
-    "cats_score":0.8,
+    "cats_score":1.0,
     "cats_score_desc":"macro F",
     "cats_micro_p":1.0,
-    "cats_micro_r":0.9333333333,
-    "cats_micro_f":0.9655172414,
-    "cats_macro_p":0.8333333333,
-    "cats_macro_r":0.7777777778,
-    "cats_macro_f":0.8,
-    "cats_macro_auc":0.8333333333,
+    "cats_micro_r":1.0,
+    "cats_micro_f":1.0,
+    "cats_macro_p":1.0,
+    "cats_macro_r":1.0,
+    "cats_macro_f":1.0,
+    "cats_macro_auc":0.0,
     "cats_f_per_type":{
+      "close_app":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
+      },
+      "show_todo_list":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
+      },
       "open_app":{
         "p":1.0,
         "r":1.0,
         "f":1.0
       },
-      "tomorrow_weather":{
-        "p":1.0,
-        "r":1.0,
-        "f":1.0
-      },
       "greeting":{
-        "p":1.0,
-        "r":0.6666666667,
-        "f":0.8
-      },
-      "current_weather":{
-        "p":0.0,
-        "r":0.0,
-        "f":0.0
-      },
-      "close_app":{
         "p":1.0,
         "r":1.0,
         "f":1.0
@@ -75,9 +72,24 @@
         "p":1.0,
         "r":1.0,
         "f":1.0
+      },
+      "current_weather":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
+      },
+      "add_todo":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
+      },
+      "tomorrow_weather":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
       }
     },
     "cats_macro_auc_per_type":0.0,
-    "textcat_loss":0.0206236744
+    "textcat_loss":0.0184183551
   }
 }

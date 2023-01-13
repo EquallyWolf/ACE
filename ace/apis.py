@@ -3,10 +3,11 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from datetime import timedelta
-from typing import Union
+from typing import Any, Union
 
 import requests
 from cachetools import TTLCache, cached
+from todoist_api_python.api import TodoistAPI
 
 
 @dataclass
@@ -127,3 +128,86 @@ class WeatherAPI:
         except requests.exceptions.ConnectionError:
 
             return None
+
+
+@dataclass
+class TodoAPI:
+    """
+    A class to interface with task management APIs.
+    """
+
+    def tasks_today(self) -> dict:
+        """
+        Finds all tasks due today and overdue.
+
+        returns: a dictionary with the keys "error" and "tasks".
+        If there was an error, the value of "error" will be a string containing
+        the error message. Otherwise, the value of "error" will be empty and the
+        value of "tasks" will be a list of strings containing the tasks.
+        """
+        try:
+            tasks = TodoistAPI(os.environ["ACE_TODO_API_KEY"]).get_tasks(
+                filters="(today | overdue) & !subtask"
+            )
+
+            return {
+                "error": None,
+                "tasks": [
+                    self._clean_task_content(task.content)
+                    for task in sorted(
+                        filter(
+                            lambda task: self._due_today(task),
+                            filter(
+                                lambda task: not task.content.startswith("*"),
+                                tasks,
+                            ),
+                        ),
+                        key=lambda task: task.priority,
+                    )
+                ],
+            }
+
+        except requests.exceptions.ConnectionError:
+            return {"error": "Connection error: Check your internet connection."}
+
+        except KeyError:
+            return {"error": "API key error: Check your API key is setup correctly."}
+
+    def add_task(self, task: str) -> dict:
+        """
+        Adds a task to the todoist inbox.
+
+        returns: a dictionary with the keys "error" and "task".
+        If there was an error, the value of "error" will be a string containing
+        the error message. Otherwise, the value of "error" will be empty and the
+        value of "task" will be a string containing the task.
+        """
+        try:
+            task = TodoistAPI(os.environ["ACE_TODO_API_KEY"]).add_task(task, description="Add from ACE")  # type: ignore
+
+            return {
+                "error": None,
+                "task": self._clean_task_content(task["content"] if type(task) is dict else task.content),  # type: ignore
+            }
+
+        except requests.exceptions.ConnectionError:
+            return {"error": "Connection error: Check your internet connection."}
+
+        except KeyError:
+            return {"error": "API key error: Check your API key is setup correctly."}
+
+    def _clean_task_content(self, task_content: str) -> str:
+        """
+        Helper function to clean up the task content.
+
+        returns: a string containing the cleaned task content.
+        """
+        return task_content.split("](")[0].replace("[", "")
+
+    def _due_today(self, task: Any) -> bool:
+        """
+        Helper function to check if a task is due today or overdue.
+
+        returns: True if the task is due today or overdue, False otherwise.
+        """
+        return task.due.date <= dt.now().strftime("%Y-%m-%d") if task.due else False
