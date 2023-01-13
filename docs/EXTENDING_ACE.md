@@ -11,7 +11,7 @@ This document is intended to help you extend ACE. It will cover the following to
 
 ## Adding a new intent
 
-To add a new intent, a selection of examples must be added to the [intents.csv](data/intents/intents.csv) file. The format of the file is as follows:
+To add a new intent, a selection of examples must be added to the [intents.csv](/data/intents/intents.csv) file. The format of the file is as follows:
 
 ```csv
 intent,example
@@ -19,7 +19,7 @@ intent,example
 
 Then configure the (base_config.cfg) spaCy config file with the desired settings. For more information on the config file, see the [spaCy documentation](https://spacy.io/usage/training#config).
 
-The [ai.toml](config/ai.toml) file must also be configured with the desired settings, taking care to set the `method` option to `train`.
+The [ai.toml](/config/ai.toml) file must also be configured with the desired settings, taking care to set the `method` option to `train`.
 
 Then run the training by running the following command:
 
@@ -29,7 +29,7 @@ $ poetry run python -m "ace.ai.models"
 
 ## Adding a new action
 
-To add a new response/action, add a new file to the [intents.py](ace/ai/intents.py) file. The format of the file is as follows:
+To add a new response/action, add a new file to the [intents.py](/ace/intents.py) file. The format of the file is as follows:
 
 ```python
 @_register(requires_text=True)
