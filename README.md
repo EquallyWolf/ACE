@@ -94,8 +94,8 @@ To set up the todo list intent, you must set the following environment variables
 
 For Unix/Linux follow this link to set the environment variables:
 
--   https://www.tutorialspoint.com/unix/unix-environment.html
+-   https://www.tutorialspoint.com/unix/unix-environment.htm
 
 For Windows follow this link to set the environment variables:
 
--   https://www.computerhope.com/issues/ch000549.html
+-   https://www.computerhope.com/issues/ch000549.htm
