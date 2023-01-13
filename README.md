@@ -2,7 +2,7 @@
 
 # ACE
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/illyshaieb/ACE/continuous-integration) ![GitHub repo size](https://img.shields.io/github/repo-size/illyshaieb/ace) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4304d43af0004b7ba2e998565a1b31fb)](https://www.codacy.com/gh/IllyShaieb/ACE/dashboard?utm_source=github.com&utm_medium=referral&utm_content=illyshaieb/ACE&utm_campaign=Badge_Grade) [![made-with-python](https://img.shields.io/badge/made%20with-Python-1f425f.svg)](https://www.python.org/) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/illyshaieb/ace?color=yellow) ![GitHub last commit](https://img.shields.io/github/last-commit/illyshaieb/ace) ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/illyshaieb/ace?color=white&label=latest%20release)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/illyshaieb/ACE/continuous_integration.yaml) ![GitHub repo size](https://img.shields.io/github/repo-size/illyshaieb/ace) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4304d43af0004b7ba2e998565a1b31fb)](https://www.codacy.com/gh/IllyShaieb/ACE/dashboard?utm_source=github.com&utm_medium=referral&utm_content=illyshaieb/ACE&utm_campaign=Badge_Grade) [![made-with-python](https://img.shields.io/badge/made%20with-Python-1f425f.svg)](https://www.python.org/) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/illyshaieb/ace?color=yellow) ![GitHub last commit](https://img.shields.io/github/last-commit/illyshaieb/ace) ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/illyshaieb/ace?color=white&label=latest%20release)
 
 </div>
 
@@ -79,7 +79,7 @@ To set up the weather intent, you must set the following environment variables:
 
 For Unix/Linux follow this link to set the environment variables:
 
--   https://www.tutorialspoint.com/unix/unix-environment.html
+-   https://www.tutorialspoint.com/unix/unix-environment.htm
 
 For Windows follow this link to set the environment variables:
 
