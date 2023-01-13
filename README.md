@@ -83,7 +83,7 @@ For Unix/Linux follow this link to set the environment variables:
 
 For Windows follow this link to set the environment variables:
 
--   https://www.computerhope.com/issues/ch000549.html
+-   https://www.computerhope.com/issues/ch000549.htm
 
 ## Todo List
 
