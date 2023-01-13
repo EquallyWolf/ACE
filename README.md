@@ -79,7 +79,7 @@ To set up the weather intent, you must set the following environment variables:
 
 For Unix/Linux follow this link to set the environment variables:
 
--   https://www.tutorialspoint.com/unix/unix-environment.html
+-   https://www.tutorialspoint.com/unix/unix-environment.htm
 
 For Windows follow this link to set the environment variables:
 
