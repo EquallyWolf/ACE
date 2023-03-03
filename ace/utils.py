@@ -1,6 +1,11 @@
 import logging
 import re
+from contextlib import contextmanager
+from datetime import datetime as dt
+from pathlib import Path
 from typing import Callable, Union
+
+import toml
 
 
 class TextProcessor:
@@ -85,7 +90,7 @@ class Logger:
             "critical": self._logger.critical,
         }
 
-    def log(self, level: str, message: str) -> None:
+    def log(self, level: str, message: str, exc_info: bool = False) -> None:
         """
         Function to log a message with the given level.
 
@@ -97,11 +102,14 @@ class Logger:
         message: str
             The message to log.
 
+        exc_info: bool (default: False)
+            Whether to log exception information.
+
         ### Returns:
 
         None
         """
-        self._options.get(level.lower(), self._logger.info)(message)
+        self._options.get(level.lower(), self._logger.info)(message, exc_info=exc_info)
 
     def log_function(self, func: Callable) -> Callable:
         """
@@ -137,6 +145,30 @@ class Logger:
             return result
 
         return wrapper
+
+    @contextmanager  # type: ignore
+    def log_context(self, level: str, enter_message: str, exit_message: str) -> None:  # type: ignore
+        """
+        Context manager to log the given messages at the given level.
+
+        ### Parameters:
+
+        level: str
+            The logging level to use.
+
+        enter_message: str
+            The message to log when entering the context.
+
+        exit_message: str
+            The message to log when exiting the context.
+
+        ### Returns:
+
+        None
+        """
+        self.log(level, enter_message)
+        yield
+        self.log(level, exit_message)
 
     def reset_handlers(self) -> None:  # pragma: no cover
         """
@@ -182,7 +214,7 @@ class Logger:
 
         ### Raises:
 
-        ValueError
+        KeyError
             If an invalid handler is given.
         """
         if any(
@@ -224,11 +256,6 @@ class Logger:
         """
         Helper function to create a logger object.
 
-        ### Parameters:
-
-        name: str
-            The name of the logger.
-
         ### Returns:
 
         logging.Logger
@@ -259,13 +286,17 @@ class Logger:
         """
         Helper function to create a stream handler.
 
+        ### Parameters:
+
+        level: str (default: "info")
+            The logging level to use.
+
         ### Returns:
 
         logging.StreamHandler
             The stream handler.
         """
-        handler = logging.StreamHandler()
-        return self._configure_file_handler(handler, level)  # type: ignore
+        return self._configure_handler(logging.StreamHandler(), level)  # type: ignore
 
     def _create_file_handler(
         self, level: str = "info", file: Union[str, None] = None
@@ -273,21 +304,28 @@ class Logger:
         """
         Helper function to create a file handler.
 
+        ### Parameters:
+
+        level: str (default: "info")
+            The logging level to use.
+
+        file: str (default: None)
+            The file path to use.
+
         ### Returns:
 
         logging.FileHandler
             The file handler.
         """
-        handler = logging.FileHandler(file)  # type: ignore
-        return self._configure_file_handler(handler, level)  # type: ignore
+        return self._configure_handler(logging.FileHandler(file), level)  # type: ignore
 
-    def _configure_file_handler(
+    def _configure_handler(
         self,
         handler: Union[logging.Handler, logging.StreamHandler, logging.FileHandler],
         level: str,
     ) -> Union[logging.Handler, logging.StreamHandler, logging.FileHandler]:
         """
-        Helper function to configure a file handler.
+        Helper function to configure a handler.
 
         ### Parameters:
 
@@ -306,6 +344,72 @@ class Logger:
         ValueError
             If an invalid logging level is given.
         """
-        handler.setFormatter(logging.Formatter(self.format))
+        handler.setFormatter(
+            logging.Formatter(self.format, style="{" if "{" in self.format else "%")
+        )
         handler.setLevel(self.logging_levels[level])
         return handler
+
+    @staticmethod
+    def from_toml(
+        root_dir: Union[Path, str] = Path.cwd(),
+        config_file_name: str = "logs.toml",
+        log_name: str = "main",
+    ) -> "Logger":
+        """
+        Creates a logger object and sets up its configuration based on the values
+        from a toml file.
+
+        The logger can be used for logging messages in the current script and can
+        save the log files in the "logs" directory.
+
+        ### Parameters:
+
+        root_dir: Path or str (default: Path.cwd())
+            The root directory of the project.
+
+        config_file_name: str
+            The file name of the file that contains the logging configuration.
+
+        log_name: str
+            The name of the configuration to use from the logs.toml file.
+
+        ### Returns:
+
+        Logger
+            The logger.
+        """
+        logs_dir = Path.joinpath(Path(root_dir), "logs")
+        logs_dir.mkdir(exist_ok=True)
+
+        log_file = Path.joinpath(logs_dir, f"{dt.now().strftime('%Y-%m-%d')}.log")
+        log_config_file = Path.joinpath(Path(root_dir), "config", config_file_name)
+
+        log_config = toml.load(log_config_file).get(
+            log_name, toml.load(log_config_file).get("main", {})
+        )
+
+        if log_file.exists() and log_config.get("reload", False):
+            log_file.unlink()
+
+        return (
+            Logger(
+                *filter(  # type: ignore
+                    None,
+                    [
+                        log_name,
+                        [
+                            (handler.get("type"), handler.get("level"))
+                            for handler in log_config.get(
+                                "handlers", [{"type": "stdout", "level": "info"}]
+                            )
+                        ],
+                        log_config.get("format", None),
+                        log_config.get("level", None),
+                        log_file,
+                    ],
+                )
+            )
+            if log_config
+            else Logger()
+        )

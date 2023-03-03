@@ -1,5 +1,5 @@
 import logging
-
+from datetime import datetime as dt
 import pytest
 
 from ace import utils
@@ -155,6 +155,18 @@ class TestLogger:
             (__name__, logging.INFO, "Returning 'Test output' from 'test_function'"),
         ]
 
+    def test_log_as_context_manager(self, caplog, mock_logger_stdout):
+        with mock_logger_stdout.log_context(
+            "info", "Entering test context", "Exiting test context"
+        ):
+            pass
+
+        assert len(caplog.record_tuples) == 2
+        assert caplog.record_tuples == [
+            (__name__, logging.INFO, "Entering test context"),
+            (__name__, logging.INFO, "Exiting test context"),
+        ]
+
     def test_log_invalid_handler(self):
         with pytest.raises(KeyError):
             utils.Logger(
@@ -199,3 +211,47 @@ class TestLogger:
                 "%(name)s | %(levelname)s | %(message)s",
                 "test",
             )
+
+    def test_create_logger_from_toml(self, tmp_path):
+        mock_toml = tmp_path / f"{dt.now().strftime('%Y-%m-%d')}.log"
+        mock_toml.write_text(
+            r"""
+            [logger]
+            level = "debug"
+            reload = false
+            format = "%(name)s | %(levelname)s | %(message)s"
+            """
+        )
+
+        logger = utils.Logger.from_toml(
+            root_dir=tmp_path,
+            config_file_name=mock_toml,
+            log_name="logger",
+        )
+
+        assert type(logger) == utils.Logger
+
+    def test_create_logger_from_toml_reload_log_file(self, tmp_path):
+        mock_toml = tmp_path / "test.toml"
+        mock_toml.write_text(
+            r"""
+            [logger]
+            level = "debug"
+            reload = true
+            format = "%(name)s | %(levelname)s | %(message)s"
+            """
+        )
+
+        logs_dir = tmp_path / "logs"
+        logs_dir.mkdir(exist_ok=True)
+
+        mock_log_file = logs_dir / f"{dt.now().strftime('%Y-%m-%d')}.log"
+        mock_log_file.touch()
+
+        logger = utils.Logger.from_toml(
+            root_dir=tmp_path,
+            config_file_name=mock_toml,
+            log_name="logger",
+        )
+
+        assert type(logger) == utils.Logger
