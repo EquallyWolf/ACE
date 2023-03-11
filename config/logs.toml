@@ -1,12 +1,38 @@
 [main]
-level = "debug"                                                  # debug, info, warning, error, fatal
+level = "info"                                                   # debug, info, warning, error, fatal
 reload = false                                                   # if true, delete the old log file and create a new one
 format = "{asctime} | {name: <15} | {levelname: <8} | {message}" # format of the log file
 
 [[main.handlers]]
-type = "file"   # type of the handler
-level = "debug" # debug, info, warning, error, fatal
+type = "file"  # type of the handler
+level = "info" # debug, info, warning, error, fatal
 
 [[main.handlers]]
+type = "stdout"    # type of the handler
+level = "critical" # debug, info, warning, error, fatal
+
+[apis]
+level = "info"                                                   # debug, info, warning, error, fatal
+reload = false                                                   # if true, delete the old log file and create a new one
+format = "{asctime} | {name: <15} | {levelname: <8} | {message}" # format of the log file
+
+[[apis.handlers]]
+type = "file"  # type of the handler
+level = "info" # debug, info, warning, error, fatal
+
+[[apis.handlers]]
+type = "stdout"    # type of the handler
+level = "critical" # debug, info, warning, error, fatal
+
+[intents]
+level = "info"                                                   # debug, info, warning, error, fatal
+reload = false                                                   # if true, delete the old log file and create a new one
+format = "{asctime} | {name: <15} | {levelname: <8} | {message}" # format of the log file
+
+[[intents.handlers]]
+type = "file"  # type of the handler
+level = "info" # debug, info, warning, error, fatal
+
+[[intents.handlers]]
 type = "stdout"    # type of the handler
 level = "critical" # debug, info, warning, error, fatal

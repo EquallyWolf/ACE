@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     with ace_logger.log_context(
         "info",
-        "Importing modules in.",
+        "Importing modules in 'ace.py'",
         "Finished importing modules.",
     ):
 
