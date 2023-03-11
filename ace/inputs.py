@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from ace.utils import Logger
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="inputs")
+
 
 @dataclass
 class Input(ABC):
@@ -42,6 +46,7 @@ class CommandLineInput(Input):
 
         returns: The input from the user.
         """
+        logger.log("info", "Obtaining input from user via command line.")
         return input() if self._prompt_empty() else input(f"{self.prompt.rstrip()} ")
 
     def _prompt_empty(self) -> bool:
