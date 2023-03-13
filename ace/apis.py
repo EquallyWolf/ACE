@@ -9,6 +9,10 @@ import requests
 from cachetools import TTLCache, cached
 from todoist_api_python.api import TodoistAPI
 
+from ace.utils import Logger
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="apis")
+
 
 @dataclass
 class WeatherAPI:
@@ -40,6 +44,7 @@ class WeatherAPI:
         """
         location = location or os.environ["ACE_HOME"]
 
+        logger.log("debug", f"Getting current weather for: {location}")
         if response := self._get_response(location, units, "current"):
 
             if response["cod"] == 200:
@@ -69,6 +74,7 @@ class WeatherAPI:
         """
         location = location or os.environ["ACE_HOME"]
 
+        logger.log("debug", f"Getting tomorrow's weather for: {location}")
         if response := self._get_response(location, units, "tomorrow"):
 
             if response["cod"] == "200":
@@ -123,6 +129,8 @@ class WeatherAPI:
             api_key: str = f"{os.environ['ACE_WEATHER_KEY']}"
             url = f"{base_url}q={location}&appid={api_key}&units={units}"
 
+            logger.log("debug", f"Getting weather from: {url.replace(api_key, '***')}")
+
             return self._session.get(url).json()
 
         except requests.exceptions.ConnectionError:
@@ -146,6 +154,7 @@ class TodoAPI:
         value of "tasks" will be a list of strings containing the tasks.
         """
         try:
+            logger.log("debug", "Getting tasks due today or overdue.")
             tasks = TodoistAPI(os.environ["ACE_TODO_API_KEY"]).get_tasks(
                 filters="(today | overdue) & !subtask"
             )
@@ -183,6 +192,7 @@ class TodoAPI:
         value of "task" will be a string containing the task.
         """
         try:
+            logger.log("debug", f"Adding task: {task}.")
             task = TodoistAPI(os.environ["ACE_TODO_API_KEY"]).add_task(task, description="Add from ACE")  # type: ignore
 
             return {

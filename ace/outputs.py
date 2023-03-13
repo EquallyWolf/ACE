@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from ace.utils import Logger
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="outputs")
+
 
 @dataclass
 class Output(ABC):
@@ -43,6 +47,8 @@ class CommandLineOutput(Output):
             print(message)
         else:
             print(f"{self.prefix.rstrip()} {message}")
+
+        logger.log("info", f"Sent command line output: {message}")
 
     def _prefix_empty(self) -> bool:
         """

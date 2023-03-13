@@ -6,7 +6,7 @@ from typing import Callable
 import ace.application as app
 from ace.ai.models import NERModel, NERModelConfig
 from ace.apis import TodoAPI, WeatherAPI
-from ace.utils import TextProcessor
+from ace.utils import TextProcessor, Logger
 
 DEGREES = "\N{DEGREE SIGN}"
 ADD_TODO_PATTERNS = [
@@ -20,6 +20,8 @@ ADD_TODO_PATTERNS = [
     r"add (?P<TASK_ITEM>.+) to my (todo|to-do|to do|task|tasks)",
     r"add (?P<TASK_ITEM>.+) to (todo|to-do|to do|task|tasks)",
 ]
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="intents")
 
 app_factory = app.AppManagerFactory()
 weather_api = WeatherAPI()
@@ -62,9 +64,11 @@ def run_intent(intent_name: str, *args, **kwargs) -> tuple[str, bool]:
     returns: tuple[str, bool]
         The response of the intent and whether or not the application should exit.
     """
-    intent = intent_funcs.get(intent_name, "unknown")
+    intent = intent_funcs.get(intent_name, unknown)
 
     response = intent.func(*args, **kwargs) if intent.requires_text else intent.func()
+    logger.log("debug", f"Intent - {intent_name} :: Returned - {response}")
+
     return response, intent.should_exit
 
 
@@ -90,14 +94,22 @@ def open_app(text: str) -> str:
     current_platform = platform.system()
 
     try:
-        manager = app_factory.create(current_platform)
+        with logger.log_context(
+            "debug",
+            f"Creating app manager for '{current_platform}'",
+            "App manager created.",
+        ):
+            manager = app_factory.create(current_platform)
     except KeyError:
+        logger.log("debug", f"Platform '{current_platform}' not found in APP_CONFIG.")
         return f"Sorry, I don't know how to open apps on this platform ({current_platform})."
 
     try:
         manager.open(app_name)
+        logger.log("debug", f"Opening '{app_name}'...")
         return f"Opening '{app_name}'..."
     except FileNotFoundError:
+        logger.log("debug", f"App '{app_name}' not found.")
         return f"Sorry, I can't open '{app_name}'. Is it installed?"
 
 
@@ -108,11 +120,17 @@ def close_app(text: str) -> str:
     current_platform = platform.system()
 
     try:
-        manager = app_factory.create(current_platform)
+        with logger.log_context(
+            "debug",
+            f"Creating app manager for '{current_platform}'",
+            "App manager created.",
+        ):
+            manager = app_factory.create(current_platform)
     except KeyError:
         return f"Sorry, I don't know how to close apps on this platform ({current_platform})."
 
     code = manager.close(app_name)
+    logger.log("debug", f"Close app returned code: {code}")
     if code == 0:
         return f"Closing '{app_name}'..."
     elif code == -1:
@@ -126,12 +144,16 @@ def close_app(text: str) -> str:
 @_register(requires_text=True)
 def current_weather(text: str) -> str:
     entities = ner_model.predict(text)
+    logger.log("debug", f"Got entities: {entities}")
+
     location = next(
         (entity[0] for entity in entities if entity[1] == "GPE"),
         os.environ.get("ACE_LOCATION", None),
     )
 
     if response := weather_api.get_current_weather(location):  # type: ignore
+
+        logger.log("debug", f"Got weather response: {response}")
 
         if response["code"] == "200":
 
@@ -154,12 +176,16 @@ def current_weather(text: str) -> str:
 @_register(requires_text=True)
 def tomorrow_weather(text: str) -> str:
     entities = ner_model.predict(text)
+    logger.log("debug", f"Got entities: {entities}")
+
     location = next(
         (entity[0] for entity in entities if entity[1] == "GPE"),
         os.environ.get("ACE_LOCATION", None),
     )
 
     if response := weather_api.get_tomorrow_weather(location):  # type: ignore
+
+        logger.log("debug", f"Got weather response: {response}")
 
         if response["code"] == "200":
 
@@ -182,8 +208,10 @@ def tomorrow_weather(text: str) -> str:
 @_register()
 def show_todo_list() -> str:
     task_list = todo_api.tasks_today()
+    logger.log("debug", f"Got task list: {task_list}")
 
     if task_list["error"]:
+        logger.log("error", f"Error getting task list: {task_list['error']}")
         return f"Sorry, I couldn't get your tasks. {task_list['error']}"
 
     if total_tasks := len(task_list["tasks"]):
@@ -202,8 +230,10 @@ def add_todo(text: str) -> str:
     if task := text_processor.find_match(text, ADD_TODO_PATTERNS, "TASK_ITEM"):
 
         task_item = todo_api.add_task(task.removeprefix("add").strip())
+        logger.log("debug", f"Got task item: {task_item}")
 
         if task_item["error"]:
+            logger.log("error", f"Error adding task: {task_item['error']}")
             return f"Sorry, I couldn't add your task. {task_item['error']}"
 
         return f"Added '{task_item['task']}' to your to-do list."
