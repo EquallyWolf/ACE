@@ -62,3 +62,29 @@ level = "info" # debug, info, warning, error, fatal
 [[outputs.handlers]]
 type = "stdout"    # type of the handler
 level = "critical" # debug, info, warning, error, fatal
+
+[data]
+level = "info"                                                   # debug, info, warning, error, fatal
+reload = false                                                   # if true, delete the old log file and create a new one
+format = "{asctime} | {name: <15} | {levelname: <8} | {message}" # format of the log file
+
+[[data.handlers]]
+type = "file"  # type of the handler
+level = "info" # debug, info, warning, error, fatal
+
+[[data.handlers]]
+type = "stdout"    # type of the handler
+level = "critical" # debug, info, warning, error, fatal
+
+[models]
+level = "info"                                                   # debug, info, warning, error, fatal
+reload = false                                                   # if true, delete the old log file and create a new one
+format = "{asctime} | {name: <15} | {levelname: <8} | {message}" # format of the log file
+
+[[models.handlers]]
+type = "file"  # type of the handler
+level = "info" # debug, info, warning, error, fatal
+
+[[models.handlers]]
+type = "stdout"    # type of the handler
+level = "critical" # debug, info, warning, error, fatal

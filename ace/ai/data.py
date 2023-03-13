@@ -1,6 +1,10 @@
 from pathlib import Path
 import pandas as pd
 
+from ace.utils import Logger
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="data")
+
 
 class IntentClassifierDataset:
     """
@@ -40,9 +44,18 @@ class IntentClassifierDataset:
 
         returns: A tuple of training and test datasets.
         """
-        train = self.data.sample(frac=train_percentage, random_state=self._seed)
-        test = self.data.drop(train.index)
-        return train, test
+
+        with logger.log_context(
+            "info",
+            "Splitting dataset into training and test sets.",
+            "Finished splitting dataset into training and test sets.",
+        ):
+            train = self.data.sample(frac=train_percentage, random_state=self._seed)
+            test = self.data.drop(train.index)
+            logger.log(
+                "debug", f"Training length = {len(train)} :: Test Length {len(test)}"
+            )
+            return train, test
 
     def _load_data(self, file: Path, shuffle: bool) -> pd.DataFrame:
         """

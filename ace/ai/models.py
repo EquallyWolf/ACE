@@ -10,9 +10,12 @@ from spacy.tokens import DocBin
 from tqdm import tqdm
 
 from ace.ai import data
+from ace.utils import Logger
 
 SEED = 42
 CONFIG_PATH = os.path.join("config", "ai.toml")
+
+logger = Logger.from_toml(config_file_name="logs.toml", log_name="models")
 
 
 @dataclass
@@ -163,19 +166,28 @@ class IntentClassifierModel:
         returns: None
         """
         if self.config.rebuild_data:
+            logger.log("debug", f"Preparing data using: {self.config}")
             self._prepare_data()
 
         base_config = Path(self.config.base_config)
         full_config = base_config.with_name("config.cfg")
 
         if self.config.rebuild_config:
-            os.system(
-                f"poetry run python -m spacy init fill-config {base_config} {full_config}"
-            )
+            with logger.log_context(
+                "debug", "Building spaCy config", "spaCy config built"
+            ):
+                os.system(
+                    f"poetry run python -m spacy init fill-config {base_config} {full_config}"
+                )
 
-        os.system(
-            f"poetry run python -m spacy train {full_config} --output {Path(self.config.output_dir)}"
-        )
+        with logger.log_context(
+            "debug",
+            f"Training {type(self).__name__} using spaCy",
+            f"{type(self).__name__} trained using spaCy",
+        ):
+            os.system(
+                f"poetry run python -m spacy train {full_config} --output {Path(self.config.output_dir)}"
+            )
 
     def _load_spacy_model(
         self, spacy_model: str = "en"
@@ -246,6 +258,7 @@ class IntentClassifierModel:
         sorted_predictions = sorted(
             predictions.items(), key=lambda x: x[1], reverse=True
         )
+        logger.log("debug", f"Predictions: {sorted_predictions}")
         if all(x[1] == 0 for x in sorted_predictions):
             return 0
         return stdev([x[1] for x in sorted_predictions]) / mean(
@@ -298,10 +311,3 @@ class NERModel:
         return (
             spacy.blank(spacy_model) if spacy_model == "en" else spacy.load(spacy_model)
         )
-
-
-if __name__ == "__main__":  # pragma: no cover
-    intent_classifier_model = IntentClassifierModel(
-        IntentClassifierModelConfig.from_toml()
-    )
-    intent_classifier_model.train()
