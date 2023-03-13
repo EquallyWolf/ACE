@@ -1,3 +1,18 @@
+"""
+Utility functions and classes for the ACE project.
+
+#### Classes:
+
+TextProcessor
+    Storing helper functions related to processing and formatting text.
+
+Logger
+    Wraps the logging module to provide a simple interface for creating
+    loggers and logging messages.
+
+#### Functions: None
+"""
+
 import logging
 import re
 from contextlib import contextmanager
@@ -10,13 +25,33 @@ import toml
 
 class TextProcessor:
     """
-    Class for storing helper functions related to processing
-    and formatting text.
+    Storing helper functions related to processing and formatting text.
+
+    #### Parameters: None
+
+    #### Methods:
+
+    remove_ansi_escape(text: str) -> str
+        Remove ANSI escape sequences from a string.
+
+    find_match(text: str, patterns: list[str], group: Union[str, int]) -> Union[str, None]
+        Find a match in a string using a list of regex patterns.
+
     """
 
     def remove_ansi_escape(self, text: str) -> str:
         """
         Remove ANSI escape sequences from a string.
+
+        #### Parameters:
+
+        text: str
+            The text to remove ANSI escape sequences from.
+
+        #### Returns: str
+            The text with ANSI escape sequences removed.
+
+        #### Raises: None
         """
         return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", text)
 
@@ -26,7 +61,7 @@ class TextProcessor:
         """
         Find a match in a string using a list of regex patterns.
 
-        ### Parameters:
+        #### Parameters:
 
         text: str
             The text to search.
@@ -34,12 +69,10 @@ class TextProcessor:
         patterns: list[str]
             A list of regex patterns to search for.
 
-        group: str (default: "")
+        group: Union[str, int]
             The group to return from the match.
 
-        ### Returns:
-
-        Union[str, None]
+        ### Returns: Union[str, None]
             The match if found, otherwise None.
         """
         for pattern in patterns:
@@ -50,8 +83,37 @@ class TextProcessor:
 
 class Logger:
     """
-    Class that wraps the logging module to provide a simple
-    interface for creating loggers and logging messages.
+    Wraps the logging module to provide a simple interface for creating
+    loggers and logging messages.
+
+    #### Parameters:
+
+    name: str (default: "main")
+        The name of the logger.
+
+    handlers: list[tuple[str, str]] (default: [("stdout", "info")])
+        A list of tuples containing the handler name and the logging level
+        to use for that handler.
+
+    format: str (default: "%(asctime)s | %(name)s | %(levelname)s | %(message)s")
+        The format to use for the logger.
+
+    level: str (default: "info")
+        The logging level to use for the logger.
+
+    file: str (default: None)
+        The file to log to if the file handler is used.
+
+    #### Methods:
+
+    log(level: str, message: str, exc_info: bool = False) -> None
+        Function to log a message with the given level.
+
+    log_function(func: Callable) -> Callable
+        Decorator to log the start and end of a function.
+
+    log_context(level: str, start_message: str, end_message: str) -> contextmanager
+        Context manager to log the start and end of a block of code.
     """
 
     logging_levels = {
@@ -94,7 +156,7 @@ class Logger:
         """
         Function to log a message with the given level.
 
-        ### Parameters:
+        #### Parameters:
 
         level: str
             The logging level to use.
@@ -105,27 +167,26 @@ class Logger:
         exc_info: bool (default: False)
             Whether to log exception information.
 
-        ### Returns:
+        #### Returns: None
 
-        None
+        #### Raises: None
         """
         self._options.get(level.lower(), self._logger.info)(message, exc_info=exc_info)
 
+    # TODO: Remove this method as it doesn't really work and is no longer used.
     def log_function(self, func: Callable) -> Callable:
         """
         Decorator to log the calling and return values of a function (if there is a return value).
 
-        Uses the given
-
-        ### Parameters:
+        #### Parameters:
 
         func: Callable
             The function to decorate.
 
-        ### Returns:
-
-        Callable
+        #### Returns: Callable
             The decorated function.
+
+        #### Raises: None
         """
 
         def wrapper(*args, **kwargs):
@@ -151,7 +212,7 @@ class Logger:
         """
         Context manager to log the given messages at the given level.
 
-        ### Parameters:
+        #### Parameters:
 
         level: str
             The logging level to use.
@@ -162,9 +223,9 @@ class Logger:
         exit_message: str
             The message to log when exiting the context.
 
-        ### Returns:
+        #### Returns: None
 
-        None
+        #### Raises: None
         """
         self.log(level, enter_message)
         yield
@@ -174,9 +235,11 @@ class Logger:
         """
         Reset the handlers streams.
 
-        ### Returns:
+        #### Parameters: None
 
-        None
+        #### Returns: None
+
+        #### Raises: None
         """
         for handler in self._logger.handlers:
             self._logger.removeHandler(handler)
@@ -199,7 +262,7 @@ class Logger:
         """
         Helper function to validate the given handlers. If the handler is valid, returns the handlers list.
 
-        ### Parameters:
+        #### Parameters:
 
         handlers: list[tuple[str, str]]
             The handlers to validate.
@@ -207,14 +270,10 @@ class Logger:
         valid_handlers: list[tuple[str, str]]
             The valid handlers.
 
-        ### Returns:
-
-        list[tuple[str, str]]
+        #### Returns: list[tuple[str, str]]
             The validated handlers.
 
-        ### Raises:
-
-        KeyError
+        #### Raises: KeyError
             If an invalid handler is given.
         """
         if any(
@@ -231,19 +290,15 @@ class Logger:
         """
         Helper function to validate the given logging level. If the level is valid, returns the level.
 
-        ### Parameters:
+        #### Parameters:
 
         level: str
             The logging level to validate.
 
-        ### Returns:
-
-        str
+        #### Returns: str
             The validated logging level.
 
-        ### Raises:
-
-        KeyError
+        #### Raises: KeyError
             If an invalid logging level is given.
         """
         if level.lower() not in self.logging_levels:
@@ -254,19 +309,19 @@ class Logger:
 
     def _create_logger(self) -> logging.Logger:
         """
-        Helper function to create a logger object.
+        Helper function to create a logger object and add the handlers and logging level
+        defined in the class initialisation.
 
-        ### Returns:
+        #### Parameters: None
 
-        logging.Logger
-            The logger.
+        #### Returns: logging.Logger
+            The logger object with the handlers and logging level supplied.
 
-        ### Raises:
+        #### Raises: ValueError
+            Due to one of the following reasons:
+                -> If an invalid handler is given.
 
-        ValueError
-            If an invalid handler is given.
-            or
-            If the file handler is given but no file path is given.
+                -> If the file handler is given but no file path is given.
         """
         logger = logging.getLogger(self.name)
         logger.setLevel(self.logging_levels[self.level])
@@ -284,17 +339,17 @@ class Logger:
 
     def _create_stream_handler(self, level: str = "info") -> logging.StreamHandler:
         """
-        Helper function to create a stream handler.
+        Helper function to create a stream handler (stdout) and set the logging level.
 
-        ### Parameters:
+        #### Parameters:
 
         level: str (default: "info")
             The logging level to use.
 
-        ### Returns:
-
-        logging.StreamHandler
+        #### Returns: logging.StreamHandler
             The stream handler.
+
+        #### Raises: None
         """
         return self._configure_handler(logging.StreamHandler(), level)  # type: ignore
 
@@ -304,7 +359,7 @@ class Logger:
         """
         Helper function to create a file handler.
 
-        ### Parameters:
+        #### Parameters:
 
         level: str (default: "info")
             The logging level to use.
@@ -312,10 +367,10 @@ class Logger:
         file: str (default: None)
             The file path to use.
 
-        ### Returns:
-
-        logging.FileHandler
+        #### Returns: logging.FileHandler
             The file handler.
+
+        #### Raises: None
         """
         return self._configure_handler(logging.FileHandler(file), level)  # type: ignore
 
@@ -327,21 +382,17 @@ class Logger:
         """
         Helper function to configure a handler.
 
-        ### Parameters:
+        #### Parameters:
 
         handler: logging.Handler
             The handler to configure.
 
         level: str
 
-        ### Returns:
-
-        Union[logging.Handler, logging.StreamHandler, logging.FileHandler]
+        #### Returns: Union[logging.Handler, logging.StreamHandler, logging.FileHandler]
             The configured file handler.
 
-        ### Raises:
-
-        ValueError
+        ### Raises: ValueError
             If an invalid logging level is given.
         """
         handler.setFormatter(
@@ -358,12 +409,12 @@ class Logger:
     ) -> "Logger":
         """
         Creates a logger object and sets up its configuration based on the values
-        from a toml file.
+        from a toml file stored in the "config" directory.
 
         The logger can be used for logging messages in the current script and can
         save the log files in the "logs" directory.
 
-        ### Parameters:
+        #### Parameters:
 
         root_dir: Path or str (default: Path.cwd())
             The root directory of the project.
@@ -374,10 +425,10 @@ class Logger:
         log_name: str
             The name of the configuration to use from the logs.toml file.
 
-        ### Returns:
-
-        Logger
+        #### Returns: Logger
             The logger.
+
+        #### Raises: None
         """
         logs_dir = Path.joinpath(Path(root_dir), "logs")
         logs_dir.mkdir(exist_ok=True)
