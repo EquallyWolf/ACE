@@ -1,3 +1,23 @@
+"""
+Contains the logic for training various models and using them to make predictions.
+
+#### Classes:
+
+IntentClassifierModelConfig:
+    Holds the configuration for the intent classifier model.
+
+IntentClassifierModel:
+    A model that can be used to classify intents.
+
+NERModelConfig:
+    Holds the configuration for the named entity recognition model.
+
+NERModel:
+    A model that can be used to recognize named entities.
+
+#### Functions: None
+"""
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,50 +41,51 @@ logger = Logger.from_toml(config_file_name="logs.toml", log_name="models")
 @dataclass
 class IntentClassifierModelConfig:
     """
-    A dataclass to hold the configuration for the intent classifier.
+    Holds the configuration for the intent classifier model.
 
-    Attributes
-    ----------
-        spacy_model: str
-            The name of the spaCy model to use.
+    #### Parameters:
 
-        data_path: Path
-            The path to the dataset file.
+    spacy_model: str (default: "en")
+        The name of the spaCy model to use.
 
-        train_percentage: float
-            The percentage of the dataset to use for training.
+    data_path: str (default: "data/intents/intents.csv")
+        The path to the data file.
 
-        train_data_save_path: str
-            The path to save the training data to.
+    train_percentage: float (default: 0.5)
+        The percentage of the data to use for training.
 
-        test_data_save_path: str
-            The path to save the test data to.
+    train_data_save_path: str (default: "data/intents/train.spacy")
+        The path to save the training data to.
 
-        rebuild_config: bool
-            Whether to rebuild the configuration or not.
+    valid_data_save_path: str (default: "data/intents/dev.spacy")
+        The path to save the validation data to.
 
-        rebuild_data: bool
-            Whether to rebuild the data or not.
+    rebuild_config: bool (default: False)
+        Whether or not to rebuild the config file.
 
-        best_model_location: str
-            The path to save the best model to.
+    rebuild_data: bool (default: False)
+        Whether or not to rebuild the data files.
 
-        threshold: float
-            The threshold to use for the intent classifier.
+    best_model_location: str (default: "models/intents/model-best")
+        The path to save the best model to.
 
-        base_config: str
-            The path to the base configuration file.
+    threshold: float (default: 0.5)
+        The threshold to use when predicting the intent.
 
-        output_dir: str
-            The path to save the model to.
+    base_config: str (default: "data/intents/base_config.cfg")
+        The path to the base config file.
 
-        mode: str
-            Whether to run the model in train or test mode.
+    output_dir: str (default: "models/intents")
+        The path to save the model to.
 
-    Methods
-    ---------
-        from_toml(path: Union[str, Path]) -> IntentClassifierModelConfig
-            Load the configuration from the TOML file.
+    mode: str (default: "train")
+        The mode to run the model in. Can be "train" or "predict".
+
+    #### Methods:
+
+    from_toml(config_file: Union[str, None] = None) -> IntentClassifierModelConfig
+        Load the configuration from a TOML file. Leave the config_file parameter
+        empty to load the configuration from the default location: config/ai.toml.
     """
 
     spacy_model: str = "en"
@@ -88,7 +109,15 @@ class IntentClassifierModelConfig:
         Load the configuration from a TOML file. Leave the config_file parameter
         empty to load the configuration from the default location: config/ai.toml.
 
-        returns: An IntentClassifierModelConfig object.
+        #### Parameters:
+
+        config_file: Union[str, None] (default: None)
+            The path to the TOML file to load the configuration from.
+
+        #### Returns: IntentClassifierModelConfig
+            The configuration object for the intent classifier model.
+
+        #### Raises: None
         """
         config = toml.load(config_file or CONFIG_PATH)
         return IntentClassifierModelConfig(**config["IntentClassifierModelConfig"])
@@ -97,12 +126,18 @@ class IntentClassifierModelConfig:
 @dataclass
 class NERModelConfig:
     """
-    A dataclass to hold the configuration for the NER model.
+    Holds the configuration for the named entity recognition model.
 
-    Attributes
-    ----------
-        spacy_model: str
-            The name of the spaCy model to use.
+    #### Parameters:
+
+    spacy_model: str (default: "en_core_web_md")
+        The name of the spaCy model to use.
+
+    #### Methods:
+
+    from_toml(config_file: Union[str, None] = None) -> NERModelConfig
+        Load the configuration from a TOML file. Leave the config_file parameter
+        empty to load the configuration from the default location: config/ai.toml.
     """
 
     spacy_model: str = "en_core_web_md"
@@ -113,7 +148,15 @@ class NERModelConfig:
         Load the configuration from a TOML file. Leave the config_file parameter
         empty to load the configuration from the default location: config/ai.toml.
 
-        returns: An NERModelConfig object.
+        #### Parameters:
+
+        config_file: Union[str, None] (default: None)
+            The path to the TOML file to load the configuration from.
+
+        #### Returns: NERModelConfig
+            The configuration object for the named entity recognition model.
+
+        #### Raises: None
         """
         config = toml.load(config_file or CONFIG_PATH)
         return NERModelConfig(**config["NERModelConfig"])
@@ -121,21 +164,20 @@ class NERModelConfig:
 
 class IntentClassifierModel:
     """
-    A class to represent a model that can classify the intents
-    of the given text.
+    Contains the logic for training and predicting the intent of a given text.
 
-    Attributes
-    ----------
-        config: IntentClassifierModelConfig
-            The configuration for the model.
+    #### Parameters:
 
-    Methods
-    ---------
-        predict(text: str)
-            Predict the intent of the given text.
+    config: IntentClassifierModelConfig (default: IntentClassifierModelConfig())
+        The configuration object for the intent classifier model.
 
-        train()
-            Train the model using the given configuration.
+    #### Methods:
+
+    predict(text: str) -> str
+        Predict the intent of the given text.
+
+    train() -> None
+        Prepares the data and trains the model using the given configuration.
     """
 
     def __init__(
@@ -148,7 +190,15 @@ class IntentClassifierModel:
         """
         Predict the intent of the given text.
 
-        returns: The predicted intent as a string.
+        #### Parameters:
+
+        text: str
+            The text to predict the intent of.
+
+        #### Returns: str
+            The predicted intent.
+
+        #### Raises: None
         """
         doc = self.nlp(text.strip().lower() if text else "")
         prediction = max(doc.cats, key=doc.cats.get)  # type: ignore
@@ -163,7 +213,11 @@ class IntentClassifierModel:
         """
         Prepares the data and trains the model using the given configuration.
 
-        returns: None
+        #### Parameters: None
+
+        #### Returns: None
+
+        #### Raises: None
         """
         if self.config.rebuild_data:
             logger.log("debug", f"Preparing data using: {self.config}")
@@ -195,7 +249,15 @@ class IntentClassifierModel:
         """
         Helper function to load the correct spaCy language model.
 
-        returns: A spaCy language model based on the given spaCy model name.
+        #### Parameters:
+
+        spacy_model: str (default: "en")
+            The name of the spaCy model to load.
+
+        #### Returns: spacy.language.Language
+            The spaCy language model.
+
+        #### Raises: None
         """
         if self.config.mode == "train":
             return (
@@ -214,7 +276,18 @@ class IntentClassifierModel:
         Helper function to create take a list of texts and labels and
         create a list of spaCy docs.
 
-        returns: A list of spaCy docs.
+        #### Parameters:
+
+        data: list[tuple[str, str]]
+            A list of tuples containing the text and the label.
+
+        for_training: bool (default: True)
+            Whether the docs are being created for training or validation.
+
+        #### Returns: list
+            A list of spaCy docs.
+
+        #### Raises: None
         """
         docs = []
         for doc, label in tqdm(
@@ -231,7 +304,11 @@ class IntentClassifierModel:
         """
         Helper function to prepare and save the data for training and validation.
 
-        returns: None
+        #### Parameters: None
+
+        #### Returns: None
+
+        #### Raises: None
         """
         dataset = data.IntentClassifierDataset(
             Path(self.config.data_path), shuffle=True
@@ -253,7 +330,15 @@ class IntentClassifierModel:
         This is done by getting the standard deviation of the prediction and
         dividing it by the mean of the predictions.
 
-        returns: confidence score as a float.
+        #### Parameters:
+
+        predictions: dict
+            A dictionary containing the predictions of the model.
+
+        #### Returns: float
+            The confidence of the model's prediction.
+
+        #### Raises: None
         """
         sorted_predictions = sorted(
             predictions.items(), key=lambda x: x[1], reverse=True
@@ -267,23 +352,18 @@ class IntentClassifierModel:
 
 
 class NERModel:
-
     """
-    A class to represent a model that can extract named entities
-    from the given text.
+    Contains the logic for the named entity recognition model.
 
-    Attributes
-    ----------
-        config: NERModelConfig
-            The configuration for the model.
+    #### Parameters:
 
-    Methods
-    ---------
-        predict(text: str)
-            Predict the named entities of the given text.
+    config: NERModelConfig (default: NERModelConfig())
+        The configuration for the model.
 
-        train()
-            Train the model using the given configuration.
+    #### Methods:
+
+    predict(text: str) -> list[tuple[str, str]]
+        Predict the named entities of the given text.
     """
 
     def __init__(self, config: NERModelConfig = NERModelConfig()) -> None:
@@ -294,8 +374,15 @@ class NERModel:
         """
         Predict the named entities of the given text.
 
-        returns: A list of tuples containing the named entity and its label, empty list
-        if no entities found.
+        #### Parameters:
+
+        text: str
+            The text to predict the named entities of.
+
+        #### Returns: list[tuple[str, str]]
+            A list of tuples containing the named entity and its label.
+
+        #### Raises: None
         """
         doc = self.nlp(text.strip() if text else "")
         return [(ent.text, ent.label_) for ent in doc.ents]
@@ -306,7 +393,15 @@ class NERModel:
         """
         Helper function to load the correct spaCy language model.
 
-        returns: A spaCy language model based on the given spaCy model name.
+        #### Parameters:
+
+        spacy_model: str (default: "en")
+            The name of the spaCy model to load.
+
+        #### Returns: spacy.language.Language
+            The spaCy language model.
+
+        #### Raises: None
         """
         return (
             spacy.blank(spacy_model) if spacy_model == "en" else spacy.load(spacy_model)
