@@ -52,3 +52,5 @@ If the intent requires text, the `requires_text` parameter for `@_register` must
 You must add a docstring to the intent function to describe what the intent does.
 
 You must also add comments throughout the code to explain what each line or section does.
+
+See the [CODE_COMMENTS.md](/docs/CODE_COMMENTS.md) document for how to style your code comments.
