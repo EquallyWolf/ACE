@@ -3,10 +3,10 @@ Utility functions and classes for the ACE project.
 
 #### Classes:
 
-TextProcessor
+TextProcessor:
     Storing helper functions related to processing and formatting text.
 
-Logger
+Logger:
     Wraps the logging module to provide a simple interface for creating
     loggers and logging messages.
 
