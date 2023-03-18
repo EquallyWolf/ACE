@@ -1,9 +1,42 @@
+"""
+Welcome to the ACE program!
+----------------------------
+
+ACE, the Artificial Consciousness Engine, is a digital assistant.
+
+It is designed to help you with your daily tasks and keep you in
+the loop with your life and the world.
+
+#### Classes: None
+
+#### Functions:
+
+main:
+    This is the main function of the ACE program. It is responsible for
+    initializing the input and output objects, loading the intent classifier
+    model, and running the main loop.
+"""
+
 from ace.utils import Logger
 
 ace_logger = Logger.from_toml(config_file_name="logs.toml", log_name="main")
 
 
 def main(logger: Logger) -> None:
+    """
+    This is the main function of the ACE program. It is responsible for
+    initializing the input and output objects, loading the intent classifier
+    model, and running the main loop.
+
+    #### Parameters:
+
+    logger: Logger
+        The logger object to use for logging.
+
+    #### Returns: None
+
+    #### Raises: None
+    """
     with logger.log_context(
         "info",
         "Loading input and output objects.",
