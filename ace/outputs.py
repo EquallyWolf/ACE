@@ -1,3 +1,17 @@
+"""
+Contains functionality for providing output to the user via any source of output.
+
+#### Classes:
+
+Output:
+    The base class for all types of outputs.
+
+CommandLineOutput:
+    An output object that provides output to the command line.
+
+#### Functions: None
+"""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -14,10 +28,15 @@ class Output(ABC):
     Provides a common interface for providing output to the user
     via any source of output.
 
-    Attributes
-    ----------
+    #### Parameters:
+
     prefix: str
         The prefix to display before the output.
+
+    #### Methods:
+
+    broadcast(message: str) -> None
+        Send a message to the user via the output.
     """
 
     prefix: str = None
@@ -31,17 +50,31 @@ class Output(ABC):
 
 class CommandLineOutput(Output):
     """
-    Class for providing output to the user via a command line.
+    Provides output to the command line.
 
-    Attributes
-    ----------
+    #### Parameters:
+
     prefix: str
         The prefix to display before the output.
+
+    #### Methods:
+
+    broadcast(message: str) -> None
+        Send a message to the user via the command line.
     """
 
     def broadcast(self, message: str) -> None:
         """
         Send a message to the user via the command line.
+
+        #### Parameters:
+
+        message: str
+            The message to send to the user.
+
+        #### Returns: None
+
+        #### Raises: None
         """
         if self._prefix_empty():
             print(message)
@@ -52,8 +85,12 @@ class CommandLineOutput(Output):
 
     def _prefix_empty(self) -> bool:
         """
-        Determine if the prefix is empty.
+        Helper method to check if the prefix is empty or only contains whitespace.
 
-        returns: True if the prefix is empty, False otherwise.
+        #### Parameters: None
+
+        #### Returns: bool
+
+        #### Raises: None
         """
         return not self.prefix or self.prefix.replace(" ", "") == ""

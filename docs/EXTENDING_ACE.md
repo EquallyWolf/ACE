@@ -46,3 +46,11 @@ def intent_name() -> str:
 The intent must return a string response.
 
 If the intent requires text, the `requires_text` parameter for `@_register` must be set to `True`, which will allow the passing of the text to the intent for further processing.
+
+## Code comments
+
+You must add a docstring to the intent function to describe what the intent does.
+
+You must also add comments throughout the code to explain what each line or section does.
+
+See the [CODE_COMMENTS.md](/docs/CODE_COMMENTS.md) document for how to style your code comments.

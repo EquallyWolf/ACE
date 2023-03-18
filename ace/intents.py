@@ -1,3 +1,15 @@
+"""
+This module provides the necessary functionality to interpret and execute
+user intents.
+
+#### Classes: None
+
+#### Functions:
+
+run_intent(intent_name: str, *args, **kwargs) -> tuple[str, bool]:
+    Runs the function associated with the intent name.
+"""
+
 import os
 import platform
 from collections import namedtuple
@@ -37,13 +49,18 @@ def _register(**kwargs) -> Callable:
     """
     A decorator that adds the function to the intent_funcs dictionary.
 
-    ### **kwargs:
+    #### Parameters:
 
-    should_exit: bool (default: False)
-        Whether or not the application should exit after the intent is executed.
+    should_exit: bool
+        Whether or not the application should exit after running the intent.
 
-    requires_text: bool (default: False)
-        Whether or not the intent requires text to be passed in.
+    requires_text: bool
+        Whether or not the intent requires text to be passed to it.
+
+    #### Returns: Callable
+        The decorated function.
+
+    #### Raises: None
     """
 
     def inner(func) -> Callable:
@@ -57,12 +74,26 @@ def _register(**kwargs) -> Callable:
 
 def run_intent(intent_name: str, *args, **kwargs) -> tuple[str, bool]:
     """
-    Runs the function associated with the intent name.
+    Runs the function associated with the intent name. If the intent
+    requires text, it will be passed as the first argument.
 
-    If the intent is not found, runs the default function "unknown".
+    #### Parameters:
 
-    returns: tuple[str, bool]
-        The response of the intent and whether or not the application should exit.
+    intent_name: str
+        The name of the intent function to run. If the intent is not found,
+        the `unknown` intent will be run.
+
+    *args: Any
+        Any additional arguments to pass to the intent function.
+
+    **kwargs: Any
+        Any additional keyword arguments to pass to the intent function.
+
+    #### Returns: tuple[str, bool]
+        A tuple containing the response from the intent function and
+        whether or not the application should exit.
+
+    #### Raises: None
     """
     intent = intent_funcs.get(intent_name, unknown)
 
@@ -74,21 +105,67 @@ def run_intent(intent_name: str, *args, **kwargs) -> tuple[str, bool]:
 
 @_register()
 def unknown() -> str:
+    """
+    The default intent function. This is run when the intent name is not
+    found in the intent_funcs dictionary or when the intent is below the
+    confidence threshold.
+
+    #### Parameters: None
+
+    #### Returns: str
+        The response to the user explaining that the user intent was not
+        understood.
+
+    #### Raises: None
+
+    """
     return "Sorry, I don't know what you mean."
 
 
 @_register()
 def greeting() -> str:
+    """
+    Provides a greeting to the user.
+
+    #### Parameters: None
+
+    #### Returns: str
+        A greeting to the user.
+    """
     return "Hello!"
 
 
 @_register(should_exit=True)
 def goodbye() -> str:
+    """
+    Provides a goodbye message to the user.
+
+    #### Parameters: None
+
+    #### Returns: str
+        A goodbye message to the user.
+
+    #### Raises: None
+    """
     return "Goodbye!"
 
 
 @_register(requires_text=True)
 def open_app(text: str) -> str:
+    """
+    Opens an application on the current platform.
+
+    #### Parameters:
+
+    text: str
+        The text to parse for the application name.
+
+    #### Returns: str
+        A message to the user indicating the outcome of whether or not the
+        application was opened.
+
+    #### Raises: None
+    """
     app_name = " ".join(text.split(" ")[1:])
 
     current_platform = platform.system()
@@ -115,6 +192,20 @@ def open_app(text: str) -> str:
 
 @_register(requires_text=True)
 def close_app(text: str) -> str:
+    """
+    Closes an application on the current platform.
+
+    #### Parameters:
+
+    text: str
+        The text to parse for the application name.
+
+    #### Returns: str
+        A message to the user indicating the outcome of whether or not the
+        application was closed.
+
+    #### Raises: None
+    """
     app_name = " ".join(text.split(" ")[1:])
 
     current_platform = platform.system()
@@ -143,6 +234,20 @@ def close_app(text: str) -> str:
 
 @_register(requires_text=True)
 def current_weather(text: str) -> str:
+    """
+    Gets the current weather for a given location.
+
+    #### Parameters:
+
+    text: str
+        The text to parse for the location.
+
+    #### Returns: str
+        A message to the user containing the current weather for the given
+        location.
+
+    #### Raises: None
+    """
     entities = ner_model.predict(text)
     logger.log("debug", f"Got entities: {entities}")
 
@@ -175,6 +280,20 @@ def current_weather(text: str) -> str:
 
 @_register(requires_text=True)
 def tomorrow_weather(text: str) -> str:
+    """
+    Gets the weather for tomorrow for a given location.
+
+    #### Parameters:
+
+    text: str
+        The text to parse for the location.
+
+    #### Returns: str
+        A message to the user containing the weather for tomorrow for the given
+        location.
+
+    #### Raises: None
+    """
     entities = ner_model.predict(text)
     logger.log("debug", f"Got entities: {entities}")
 
@@ -207,6 +326,16 @@ def tomorrow_weather(text: str) -> str:
 
 @_register()
 def show_todo_list() -> str:
+    """
+    Gets the user's todo list for today.
+
+    #### Parameters: None
+
+    #### Returns: str
+        A message to the user containing the user's todo list for today.
+
+    #### Raises: None
+    """
     task_list = todo_api.tasks_today()
     logger.log("debug", f"Got task list: {task_list}")
 
@@ -227,6 +356,19 @@ def show_todo_list() -> str:
 
 @_register(requires_text=True)
 def add_todo(text: str) -> str:
+    """
+    Adds a task to the user's todo list.
+
+    #### Parameters:
+
+    text: str
+        The text to parse for the task.
+
+    #### Returns: str
+        A message to the user confirming the task was added.
+
+    #### Raises: None
+    """
     if task := text_processor.find_match(text, ADD_TODO_PATTERNS, "TASK_ITEM"):
 
         task_item = todo_api.add_task(task.removeprefix("add").strip())
