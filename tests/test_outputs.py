@@ -62,17 +62,17 @@ class TestCommandLineOutput:
 )
 class TestSpeechOutput:
     def test_broadcast_without_pronunciation(self, mocker):
-        say_mock = mocker.patch("ace.outputs.speech_engine.say")
+        engine_mock = mocker.patch("ace.outputs.SpeechOutput._engine.say")
 
         speech_output = outputs.SpeechOutput()
         speech_output.broadcast("Say hello!")
 
-        say_mock.assert_called_once_with("Say hello!")
+        engine_mock.assert_called_once_with("Say hello!")
 
     def test_broadcast_with_pronunciation(self, mocker):
-        say_mock = mocker.patch("ace.outputs.speech_engine.say")
+        engine_mock = mocker.patch("ace.outputs.SpeechOutput._engine.say")
 
         speech_output = outputs.SpeechOutput(pronunciation={"hello": "hullo"})
         speech_output.broadcast("Say hello!")
 
-        say_mock.assert_called_once_with("Say hullo!")
+        engine_mock.assert_called_once_with("Say hullo!")
