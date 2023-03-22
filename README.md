@@ -44,6 +44,12 @@ $ cd ACE
 $ poetry install
 ```
 
+You must also install the following dependencies:
+
+-   [FFmpeg](https://ffmpeg.org/download.html):
+
+    FFmpeg is a powerful multimedia framework that can handle almost any format of multimedia content, is highly portable, and can run across a wide range of operating systems and configurations
+
 ### Running
 
 To start ACE, run the following command:
