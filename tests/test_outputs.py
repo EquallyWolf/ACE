@@ -1,5 +1,6 @@
 import pytest
-from ace.outputs import CommandLineOutput
+
+from ace import outputs
 from ace.utils import TextProcessor
 
 text_processor = TextProcessor()
@@ -18,7 +19,7 @@ class TestCommandLineOutput:
     def test_broadcast_command_line_output_no_prefix(
         self, prefix, message, expected, capsys
     ):
-        text_output = CommandLineOutput(prefix)
+        text_output = outputs.CommandLineOutput(prefix)
         text_output.broadcast(message)
 
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
@@ -34,7 +35,7 @@ class TestCommandLineOutput:
     def test_broadcast_command_line_output_no_special_character(
         self, prefix, message, expected, capsys
     ):
-        text_output = CommandLineOutput(prefix)
+        text_output = outputs.CommandLineOutput(prefix)
         text_output.broadcast(message)
 
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
@@ -50,7 +51,25 @@ class TestCommandLineOutput:
     def test_broadcast_command_line_output_special_character(
         self, prefix, message, expected, capsys
     ):
-        text_output = CommandLineOutput(prefix)
+        text_output = outputs.CommandLineOutput(prefix)
         text_output.broadcast(message)
 
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
+
+
+class TestSpeechOutput:
+    def test_broadcast_without_pronunciation(self, mocker):
+        say_mock = mocker.patch("ace.outputs.speech_engine.say")
+
+        speech_output = outputs.SpeechOutput()
+        speech_output.broadcast("Say hello!")
+
+        say_mock.assert_called_once_with("Say hello!")
+
+    def test_broadcast_with_pronunciation(self, mocker):
+        say_mock = mocker.patch("ace.outputs.speech_engine.say")
+
+        speech_output = outputs.SpeechOutput(pronunciation={"hello": "hullo"})
+        speech_output.broadcast("Say hello!")
+
+        say_mock.assert_called_once_with("Say hullo!")
