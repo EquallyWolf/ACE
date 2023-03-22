@@ -25,10 +25,6 @@ from ace.utils import Logger
 
 logger = Logger.from_toml(config_file_name="logs.toml", log_name="outputs")
 
-speech_engine = pyttsx3.init()
-speech_engine.setProperty("rate", 170)
-speech_engine.setProperty("voice", speech_engine.getProperty("voices")[0].id)
-
 
 @dataclass
 class Output(ABC):
@@ -128,6 +124,10 @@ class SpeechOutput(Output):
 
     pronunciation: Union[dict[str, str], None] = None
 
+    _engine = pyttsx3.init()
+    _engine.setProperty("rate", 170)
+    _engine.setProperty("voice", _engine.getProperty("voices")[0].id)
+
     def broadcast(self, message: str) -> None:
         """
         Send a message to the user via speech.
@@ -146,14 +146,20 @@ class SpeechOutput(Output):
         """
         message = self._format_pronunciation(message)
 
-        speech_engine.say(message)
+        if not self._engine:
+            logger.log(
+                "error",
+                "Could not send speech output because speech engine is not initialized.",
+            )
+            return
+        self._engine.say(message)
 
-        speech_engine.startLoop(False)
-        speech_engine.iterate()
+        self._engine.startLoop(False)
+        self._engine.iterate()
 
         logger.log("info", f"Sent speech output: {message}")
 
-        speech_engine.endLoop()
+        self._engine.endLoop()
 
     def _format_pronunciation(self, message: str) -> str:
         """
