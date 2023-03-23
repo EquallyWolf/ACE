@@ -58,12 +58,7 @@ class TestCommandLineOutput:
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
 
 
-@pytest.mark.xfail(
-    system() != "Windows",
-    reason="Speech output only works on Windows",
-    raises=OSError,
-    strict=True,
-)
+@pytest.mark.skipif(system() != "Windows", reason="Currently only works on Windows")
 class TestSpeechOutput:
     def test_broadcast_without_pronunciation(self, mocker):
         engine_mock = mocker.patch("ace.outputs.SpeechOutput._engine.say")
