@@ -1,4 +1,5 @@
 from platform import system
+
 import pytest
 
 from ace import outputs
@@ -58,11 +59,8 @@ class TestCommandLineOutput:
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
 
 
-@pytest.mark.xfail(
-    system() != "Windows",
-    reason="Speech output is only supported on Windows.",
-    raises=KeyError,
-    strict=True,
+@pytest.mark.skipif(
+    system() != "Windows", reason="Speech output is only supported on Windows."
 )
 class TestSpeechOutput:
     def test_broadcast_without_pronunciation(self, mocker):
