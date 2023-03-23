@@ -1,3 +1,4 @@
+from platform import system
 import pytest
 
 from ace import outputs
@@ -58,7 +59,10 @@ class TestCommandLineOutput:
 
 
 @pytest.mark.xfail(
-    reason="This test requires the driver to be installed, which is not the case on CI."
+    system() != "Windows",
+    reason="Speech output only works on Windows",
+    raises=OSError,
+    strict=True,
 )
 class TestSpeechOutput:
     def test_broadcast_without_pronunciation(self, mocker):
