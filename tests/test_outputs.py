@@ -59,10 +59,12 @@ class TestCommandLineOutput:
         assert text_processor.remove_ansi_escape(capsys.readouterr().out) == expected
 
 
-@pytest.mark.skipif(
-    system() != "Windows", reason="Speech output is only supported on Windows."
-)
 class TestSpeechOutput:
+    # Currently fails on test discovery on non-Windows systems as the driver is not
+    # installed for SpeechOutput. Do not currently have a solution. Setting this to
+    # False will prevent the tests from running on non-Windows systems.
+    __test__ = system() == "Windows"
+
     def test_broadcast_without_pronunciation(self, mocker):
         engine_mock = mocker.patch("ace.outputs.SpeechOutput._engine.say")
 
