@@ -73,3 +73,15 @@ class TestSpeechOutput:
         speech_output.broadcast("Say hello!")
 
         engine_mock.assert_called_once_with("Say hullo!")
+
+    def test_broadcast_engine_fail_to_initialise(self, mocker):
+        mocker.patch("ace.outputs.SpeechOutput._engine", None)
+        logger = mocker.patch("ace.outputs.logger")
+
+        speech_output = outputs.SpeechOutput()
+        speech_output.broadcast("Say hello!")
+
+        logger.log.assert_called_once_with(
+            "error",
+            "Could not send speech output because speech engine is not initialized.",
+        )
