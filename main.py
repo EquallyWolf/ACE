@@ -39,11 +39,21 @@ def main(logger: Logger) -> None:
     """
     with logger.log_context(
         "info",
+        "Loading pronunciations.",
+        "Finished loading pronunciations.",
+    ):
+        pronunciations = toml.load("config/diction.toml")["pronunciations"]
+
+    with logger.log_context(
+        "info",
         "Loading input and output objects.",
         "Finished loading input and output objects.",
     ):
         user_input = CommandLineInput(f"{Fore.CYAN}You:")
-        ace_output = CommandLineOutput(f"{Fore.YELLOW}ACE:")
+        ace_outputs = [
+            CommandLineOutput(f"{Fore.YELLOW}ACE:"),
+            SpeechOutput(pronunciation=pronunciations),
+        ]
 
     with logger.log_context(
         "info",
@@ -66,7 +76,8 @@ def main(logger: Logger) -> None:
         logger.log("info", f"Predicted intent: {intent}")
 
         output = run_intent(intent, text)
-        ace_output.broadcast(output[0])
+        for ace_output in ace_outputs:
+            ace_output.broadcast(output[0])
 
         if output[1]:
             break
@@ -86,13 +97,14 @@ if __name__ == "__main__":
 
         import sys
 
+        import toml
         from colorama import Fore
         from colorama import init as colorama_init
 
         from ace.ai.models import IntentClassifierModel, IntentClassifierModelConfig
         from ace.inputs import CommandLineInput
         from ace.intents import run_intent
-        from ace.outputs import CommandLineOutput
+        from ace.outputs import CommandLineOutput, SpeechOutput
 
     colorama_init(autoreset=True)
 
