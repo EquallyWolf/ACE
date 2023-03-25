@@ -83,10 +83,6 @@ To set up the weather intent, you must set the following environment variables:
 | `ACE_HOME` | London | The default location for the weather intent, if no location is specified. |
 | `ACE_WEATHER_KEY` | 822fc8446f5adc72ac8c766a871329a8 | The API key for the [OpenWeatherMap API](https://openweathermap.org/api) |
 
-For Unix/Linux follow this link to set the environment variables:
-
--   https://www.tutorialspoint.com/unix/unix-environment.htm
-
 For Windows follow this link to set the environment variables:
 
 -   https://www.computerhope.com/issues/ch000549.htm
@@ -97,10 +93,6 @@ To set up the todo list intent, you must set the following environment variables
 | Variable | Example | Description |
 | --- | --- | --- |
 | `ACE_TODO_API_KEY` | 822fc8446f5adc72ac8c766a871329a8 | The API key for the [Todoist API](https://developer.todoist.com/sync/v9/) |
-
-For Unix/Linux follow this link to set the environment variables:
-
--   https://www.tutorialspoint.com/unix/unix-environment.htm
 
 For Windows follow this link to set the environment variables:
 
