@@ -39,11 +39,21 @@ def main(logger: Logger) -> None:
     """
     with logger.log_context(
         "info",
+        "Loading pronunciations.",
+        "Finished loading pronunciations.",
+    ):
+        pronunciations = toml.load("config/diction.toml")["pronunciations"]
+
+    with logger.log_context(
+        "info",
         "Loading input and output objects.",
         "Finished loading input and output objects.",
     ):
         user_input = CommandLineInput(f"{Fore.CYAN}You:")
-        ace_outputs = [CommandLineOutput(f"{Fore.YELLOW}ACE:"), SpeechOutput()]
+        ace_outputs = [
+            CommandLineOutput(f"{Fore.YELLOW}ACE:"),
+            SpeechOutput(pronunciation=pronunciations),
+        ]
 
     with logger.log_context(
         "info",
@@ -87,6 +97,7 @@ if __name__ == "__main__":
 
         import sys
 
+        import toml
         from colorama import Fore
         from colorama import init as colorama_init
 
