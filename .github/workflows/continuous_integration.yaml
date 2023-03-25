@@ -17,7 +17,7 @@ jobs:
             matrix:
                 python-version: ["3.9", "3.10"]
                 poetry-version: ["1.2.2"]
-                os: [windows-2019, windows-latest, ubuntu-20.04, ubuntu-latest]
+                os: [windows-2019, windows-latest]
 
         runs-on: ${{ matrix.os }}
 
