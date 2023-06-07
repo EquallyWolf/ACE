@@ -1,0 +1,5 @@
+[interfaces]
+[interfaces.cli]
+input = { text = true }                   # types of input this interface supports
+outputs = { text = true, speech = true }  # types of output this interface supports
+headers = { text = true, speech = false } # types of headers this interface supports
