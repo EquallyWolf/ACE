@@ -31,7 +31,7 @@ with logger.log_context(
 ):
     import typer
 
-    from ace.interfaces import CLI
+    from ace.interfaces import CLI, GUI
 
 app = typer.Typer()
 
@@ -49,8 +49,33 @@ def cli(
     """
     Run the ACE program, using the command line interface.
     """
-    logger.log("info", "Starting ACE.")
     interface = CLI(show_header=not no_header, header=__doc__)
+    logger.log("info", "Starting ACE.")
+    interface.run()
+
+
+@app.command()
+def gui(
+    no_header: bool = typer.Option(
+        False,
+        "--no-header",
+        "-nh",
+        help="Don't show the header.",
+        show_default=True,
+    ),
+) -> None:
+    """
+    Run the ACE program, using the graphical user interface.
+    """
+    header = "\n\n".join(
+        [
+            "Welcome to ACE, the Artificial Consciousness Engine!",
+            "ACE is a digital assistant, designed to help you with your daily tasks and keep you in the loop with your life and the world.",
+        ]
+    )
+
+    interface = GUI(show_header=not no_header, header=header)
+    logger.log("info", "Starting ACE.")
     interface.run()
 
 

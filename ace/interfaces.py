@@ -1,5 +1,8 @@
+import tkinter as tk
 from abc import ABC, abstractmethod
+from typing import Union
 
+import customtkinter as ctk
 import toml
 from colorama import Fore
 from colorama import init as colorama_init
@@ -135,7 +138,17 @@ class Interface(ABC):  # pragma: no cover
         self._header = header
 
     @property
-    def input(self) -> Input:
+    def input(self) -> Union[Input, tk.Entry, ctk.CTkEntry]:
+        """
+        The input to the interface.
+
+        ### Returns: Input
+            The input.
+        """
+        return self._input
+
+    @input.setter
+    def input(self) -> Union[Input, tk.Entry, ctk.CTkEntry]:
         """
         The input to the interface.
 
@@ -145,7 +158,7 @@ class Interface(ABC):  # pragma: no cover
         return self._input
 
     @property
-    def outputs(self) -> list[Output]:
+    def outputs(self) -> list[Union[Output, tk.Text, ctk.CTkTextbox]]:
         """
         The outputs to the interface.
 
@@ -179,7 +192,7 @@ class Interface(ABC):  # pragma: no cover
         raise NotImplementedError
 
     @abstractmethod
-    def create_input(self) -> Input:
+    def create_input(self) -> Union[Input, tk.Entry, ctk.CTkEntry]:
         """
         Method to create an input to the interface.
 
@@ -194,13 +207,13 @@ class Interface(ABC):  # pragma: no cover
         raise NotImplementedError
 
     @abstractmethod
-    def create_outputs(self) -> list[Output]:
+    def create_outputs(self) -> list[Union[Output, tk.Text, ctk.CTkTextbox]]:
         """
         Method to create outputs to the interface.
 
         ### Parameters: None
 
-        ### Returns: list[Output]
+        ### Returns: list[Union[Output, tk.Text, ctk.CTkTextbox]]
             The outputs.
 
         ### Raises: NotImplementedError
@@ -442,3 +455,401 @@ class CLI(Interface):
         logger.log("info", f"Predicted intent: {intent}")
 
         return intent, text
+
+
+class GUI(Interface):
+    """
+    Interact with ACE through a graphical user interface (GUI).
+
+    ### Parameters:
+
+    show_header (bool): (default: True)
+        Whether to show the start information to the user.
+
+    header (str): (default: "")
+        The start information to show the user.
+
+    ### Methods:
+
+    run():
+        Start the main loop of the GUI to get the user input, predict
+        and run the intent, and broadcast the output.
+    """
+
+    def __init__(self, show_header: bool, header: str = "") -> None:
+        super().__init__(show_header=show_header, header=header)
+        self._setup()
+        self._speech_output = SpeechOutput()
+
+    @property
+    def valid_input_types(self) -> list[str]:
+        """
+        The valid input types for the GUI.
+
+        ### Returns: list[str]
+            The valid input types.
+        """
+        return ["text"]
+
+    @property
+    def root(self) -> Union[tk.Tk, ctk.CTk]:
+        """
+        The root application object for the GUI.
+
+        ### Returns: Union[tk.Tk, ctk.CTk]
+            The application object.
+        """
+        return self._root
+
+    @property
+    def chat_box(self) -> Union[tk.Text, ctk.CTkTextbox, None]:
+        """
+        The chat box for the GUI.
+
+        ### Returns: Union[tk.Text, ctk.CTkTextbox]
+            The chat box.
+        """
+        return self._chat_box
+
+    @property
+    def user_input(self) -> Union[tk.Entry, ctk.CTkEntry, None]:
+        """
+        The user input for the GUI.
+
+        ### Returns: Union[tk.Entry, ctk.CTkEntry]
+            The user input.
+        """
+        return self._user_input
+
+    @property
+    def send_button(self) -> Union[tk.Button, ctk.CTkButton, None]:
+        """
+        The send button for the GUI.
+
+        ### Returns: Union[tk.Button, ctk.CTkButton]
+            The send button.
+        """
+        return self._send_button
+
+    def create_root(self) -> None:
+        """
+        Create the main application object.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        # Initialise the root object
+        self._root = ctk.CTk()
+
+        # Assign properties
+        self._root.title("ACE - Artificial Conciousness Engine")
+        self._root.geometry("400x500")
+        self._root.resizable(width=False, height=False)
+
+        # Change icon
+        self._root.iconbitmap("assets/ACE.ico")
+
+        # Bind keys
+        self._root.bind("<Escape>", lambda _: self.root.destroy())
+
+    def create_chat_box(self) -> None:
+        """
+        Create the chat box, which displays the conversation.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.config["outputs"]["text"]:
+            self._chat_box = ctk.CTkTextbox(
+                self.root,
+                state=tk.DISABLED,
+                font=("Helvetica", 12),
+                wrap=tk.WORD,
+            )
+            self._chat_box.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        else:
+            self._chat_box = None
+
+    def create_user_input(self) -> None:
+        """
+        Create the user input box, which allows the user to type in
+        their message.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.config["input"]["text"]:
+            self._user_input = ctk.CTkEntry(
+                self.root,
+                font=("Helvetica", 12),
+            )
+            self._user_input.pack(fill=tk.X, padx=5, pady=5)
+            self._user_input.insert(0, "Type here...")
+            self._user_input.bind(
+                "<FocusOut>",
+                lambda _: self.user_input.insert(0, "Type here..."),
+            )
+            self._user_input.bind(
+                "<FocusIn>", lambda _: self._user_input.delete(0, tk.END)
+            )
+            self.user_input.bind("<Return>", self._send_message)
+            self._input = self._user_input
+        else:
+            self._user_input = None
+
+    def create_send_button(self) -> None:
+        """
+        Create the send button, which allows the user to send their
+        message to get a response.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.config["input"]["text"]:
+            self._send_button = ctk.CTkButton(
+                self.root,
+                text="Send",
+                command=self._send_message,
+            )
+            self._send_button.pack(fill=tk.X, padx=5, pady=5)
+        else:
+            self._send_button = None
+            self.root.geometry("400x80")
+
+    def create_input(self) -> Union[Input, None]:
+        """
+        Not currently implemented for the GUI, as the input is
+        created after the GUI is setup.
+        """
+        pass
+
+    def create_outputs(self) -> Union[list[Output], None]:
+        """
+        Not currently implemented for the GUI, as the outputs are
+        created after the GUI is setup.
+        """
+        pass
+
+    def create_header_outputs(self) -> Union[list[Output], None]:
+        """
+        Not currently implemented for the GUI, as the header is
+        displayed in the chat box.
+        """
+        pass
+
+    def run(self) -> None:  # pragma: no cover
+        """
+        Start the main loop of the GUI to get the user input, predict
+        and run the intent, and broadcast the output.
+        """
+        self.root.mainloop()
+        logger.log("info", "Exited GUI.")
+
+    def display_header(self) -> None:  # pragma: no cover
+        """
+        Method to display the start information to the user.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: NotImplementedError
+        """
+        if self.show_header and self.config["headers"]["text"] and self.chat_box:
+            self.chat_box.configure(state=tk.NORMAL)
+            self.chat_box.insert(tk.END, f"{self.header}\n\n")
+            self.chat_box.see(tk.END)
+            self.chat_box.configure(state=tk.DISABLED)
+            logger.log("info", f"Sent text output: {self.header}")
+
+        if self.show_header and self.config["headers"]["speech"]:
+            self._speech_output.broadcast(self.header)
+
+    def get_intent(self, text: str) -> tuple[str, str]:
+        """
+        Method to get the text from the user and determine the intent.
+
+        ### Parameters:
+
+        text (str):
+            The text from the user.
+
+        ### Returns: tuple[str, str]
+            The intent and the text from the user.
+
+        ### Raises: NotImplementedError
+        """
+        logger.log("info", f"Received input: {text}")
+
+        intent = self.intent_classifier.predict(text)
+        logger.log("info", f"Predicted intent: {intent}")
+
+        return intent, text
+
+    def get_user_input(self, input_type: str = "text", prompt: str = "") -> str:
+        """
+        Obtain the input from a user via the provided input type,
+        and return it as a string.
+
+        #### Parameters:
+
+        input_type (str): (default: "text")
+            The type of input to obtain from the user.
+
+        prompt (str): (default: "")
+            The text that needs removing from the input.
+
+        #### Returns: str
+            The input from the user.
+
+        #### Raises: ValueError
+            If the input type is invalid.
+        """
+        if input_type not in self.valid_input_types:
+            raise ValueError(
+                f"Invalid input type: {input_type}. Valid input types are: {self.valid_input_types}"
+            )
+        if input_type == "text" and self.config["input"]["text"]:
+            logger.log(
+                "info", "Obtaining input from user via graphical user interface."
+            )
+            if self.user_input:
+                return self.user_input.get().removeprefix(prompt)
+        return ""
+
+    def _setup(self) -> None:  # pragma: no cover
+        """
+        Helper method to create and place all widgets in the GUI, and
+        set all the properties of the GUI.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+
+        with logger.log_context(
+            "info",
+            "Setting up GUI.",
+            "Finished setting up GUI.",
+        ):
+            ctk.set_appearance_mode("system")
+            ctk.set_default_color_theme("dark-blue")
+
+            self.create_root()
+
+            # Add the widgets
+            self.create_chat_box()
+            self.create_user_input()
+            self.create_send_button()
+
+            # Display the header
+            self.root.after(500, self.display_header)
+
+            # Focus on the user input
+            if self.user_input:
+                self.root.after(1000, self.user_input.focus_set)
+
+    def _send_message(
+        self, event: Union[tk.Event, None] = None
+    ) -> None:  # pragma: no cover
+        """
+        Helper method to handle sending a message via the GUI.
+        """
+        logger.log("info", f"Sending message via event: {event}")
+
+        # Get the message from the user
+        message = self.get_user_input("text", "You: ")
+
+        self.user_input.delete(0, tk.END)
+        self._broadcast_user_message(message)
+
+        # Wait and respond
+        self.root.after(500, self._respond, event)
+
+    def _respond(self, event: Union[tk.Event, None] = None) -> None:  # pragma: no cover
+        """
+        Helper method to handle responding to a message via the GUI.
+        """
+        logger.log("info", f"Responding to message via event: {event}")
+        chatbox_text = self.chat_box.get("1.0", tk.END)
+        messages = chatbox_text.split("\n\n")
+
+        logger.log("debug", f"Messages: {messages}")
+        message = messages[-2].replace("You: ", "")
+
+        response = run_intent(*self.get_intent(message))
+        self._broadcast_ace_message(response[0])
+
+        if response[1]:
+            self._close()
+
+    def _broadcast_user_message(self, message: str) -> None:  # pragma: no cover
+        """
+        Helper method to show a message from the user in the GUI.
+
+        ### Parameters:
+
+        message (str):
+            The message from the user.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.config["outputs"]["text"]:
+            self.chat_box.configure(state=tk.NORMAL)
+            self.chat_box.insert(tk.END, f"You: {message}\n\n", tags="USER")
+            self.chat_box.see(tk.END)
+            self.chat_box.configure(state=tk.DISABLED)
+            logger.log("info", f"Sent text output: {message}")
+
+    def _broadcast_ace_message(self, message: str) -> None:  # pragma: no cover
+        """
+        Helper method to show a message from ACE in the GUI.
+
+        ### Parameters:
+
+        message (str):
+            The message from ACE.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.config["outputs"]["text"]:
+            self.chat_box.configure(state=tk.NORMAL)
+            self.chat_box.insert(tk.END, f"ACE: {message}\n\n", tags="ACE")
+            self.chat_box.see(tk.END)
+            self.chat_box.configure(state=tk.DISABLED)
+            logger.log("info", f"Sent text output: {message}")
+
+        if self.config["outputs"]["speech"]:
+            self.root.after(50, self._speech_output.broadcast, message)
+
+    def _close(self) -> None:  # pragma: no cover
+        """
+        Helper method to close the GUI.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if self.chat_box:
+            self.chat_box.insert(tk.END, "Exiting...")
+        self.root.after(1000, self.root.destroy)
