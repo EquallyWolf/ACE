@@ -410,7 +410,8 @@ class CLI(Interface):
             output = run_intent(*self.get_intent())
 
             for _output in self.outputs:
-                _output.broadcast(output[0])
+                if type(_output) == Output:
+                    _output.broadcast(output[0])
 
             if output[1]:
                 break
@@ -596,12 +597,12 @@ class GUI(Interface):
             self._user_input.insert(0, "Type here...")
             self._user_input.bind(
                 "<FocusOut>",
-                lambda _: self.user_input.insert(0, "Type here..."),
+                lambda _: self._user_input.insert(0, "Type here..."),  # type: ignore
             )
             self._user_input.bind(
-                "<FocusIn>", lambda _: self._user_input.delete(0, tk.END)
+                "<FocusIn>", lambda _: self._user_input.delete(0, tk.END)  # type: ignore
             )
-            self.user_input.bind("<Return>", self._send_message)
+            self._user_input.bind("<Return>", self._send_message)  # type: ignore
             self._input = self._user_input
         else:
             self._user_input = None
@@ -774,7 +775,7 @@ class GUI(Interface):
         # Get the message from the user
         message = self.get_user_input("text", "You: ")
 
-        self.user_input.delete(0, tk.END)
+        self.user_input.delete(0, tk.END)  # type: ignore
         self._broadcast_user_message(message)
 
         # Wait and respond
@@ -785,7 +786,7 @@ class GUI(Interface):
         Helper method to handle responding to a message via the GUI.
         """
         logger.log("info", f"Responding to message via event: {event}")
-        chatbox_text = self.chat_box.get("1.0", tk.END)
+        chatbox_text = self.chat_box.get("1.0", tk.END)  # type: ignore
         messages = chatbox_text.split("\n\n")
 
         logger.log("debug", f"Messages: {messages}")
@@ -810,9 +811,9 @@ class GUI(Interface):
 
         ### Raises: None
         """
-        if self.config["outputs"]["text"]:
+        if self.config["outputs"]["text"] and self.chat_box:
             self.chat_box.configure(state=tk.NORMAL)
-            self.chat_box.insert(tk.END, f"You: {message}\n\n", tags="USER")
+            self.chat_box.insert(tk.END, f"You: {message}\n\n", tags="USER")  # type: ignore
             self.chat_box.see(tk.END)
             self.chat_box.configure(state=tk.DISABLED)
             logger.log("info", f"Sent text output: {message}")
@@ -830,9 +831,9 @@ class GUI(Interface):
 
         ### Raises: None
         """
-        if self.config["outputs"]["text"]:
+        if self.config["outputs"]["text"] and self.chat_box:
             self.chat_box.configure(state=tk.NORMAL)
-            self.chat_box.insert(tk.END, f"ACE: {message}\n\n", tags="ACE")
+            self.chat_box.insert(tk.END, f"ACE: {message}\n\n", tags="ACE")  # type: ignore
             self.chat_box.see(tk.END)
             self.chat_box.configure(state=tk.DISABLED)
             logger.log("info", f"Sent text output: {message}")
