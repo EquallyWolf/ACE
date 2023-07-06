@@ -17,6 +17,20 @@ colorama_init(autoreset=True)
 
 logger = Logger.from_toml(config_file_name="logs.toml", log_name="interfaces")
 
+COLOUR_SCHEME = {
+    "background": "#282A36",
+    "current_line": "#44475A",
+    "foreground": "#F8F8F2",
+    "comment": "#6272A4",
+    "cyan": "#8bE9FD",
+    "green": "#50FA7B",
+    "orange": "#FFb86C",
+    "pink": "#FF79C6",
+    "purple": "#BD93F9",
+    "red": "#FF5555",
+    "yellow": "#F1fA8C",
+}
+
 
 class Interface(ABC):  # pragma: no cover
     """
@@ -470,6 +484,10 @@ class GUI(Interface):
     header (str): (default: "")
         The start information to show the user.
 
+    theme (str): (default: "dark-blue")
+        The theme to use for the GUI, which can be either a built-in
+        name or a path to a JSON file.
+
     ### Methods:
 
     run():
@@ -477,9 +495,11 @@ class GUI(Interface):
         and run the intent, and broadcast the output.
     """
 
-    def __init__(self, show_header: bool, header: str = "") -> None:
+    def __init__(
+        self, show_header: bool, header: str = "", theme: str = "dark-blue"
+    ) -> None:
         super().__init__(show_header=show_header, header=header)
-        self._setup()
+        self._setup(theme)
         self._speech_output = SpeechOutput()
 
     @property
@@ -570,10 +590,11 @@ class GUI(Interface):
             self._chat_box = ctk.CTkTextbox(
                 self.root,
                 state=tk.DISABLED,
-                font=("Helvetica", 12),
                 wrap=tk.WORD,
             )
             self._chat_box.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            self._chat_box.tag_config("USER", foreground=COLOUR_SCHEME["cyan"])
+            self._chat_box.tag_config("ACE", foreground=COLOUR_SCHEME["yellow"])
         else:
             self._chat_box = None
 
@@ -589,10 +610,7 @@ class GUI(Interface):
         ### Raises: None
         """
         if self.config["input"]["text"]:
-            self._user_input = ctk.CTkEntry(
-                self.root,
-                font=("Helvetica", 12),
-            )
+            self._user_input = ctk.CTkEntry(self.root)
             self._user_input.pack(fill=tk.X, padx=5, pady=5)
             self._user_input.insert(0, "Type here...")
             self._user_input.bind(
@@ -730,12 +748,16 @@ class GUI(Interface):
                 return self.user_input.get().removeprefix(prompt)
         return ""
 
-    def _setup(self) -> None:  # pragma: no cover
+    def _setup(self, theme: str) -> None:  # pragma: no cover
         """
         Helper method to create and place all widgets in the GUI, and
         set all the properties of the GUI.
 
-        ### Parameters: None
+        ### Parameters:
+
+        theme (str):
+            The theme to use for the GUI, which can be either a built-in
+            name or a path to a JSON file.
 
         ### Returns: None
 
@@ -748,7 +770,7 @@ class GUI(Interface):
             "Finished setting up GUI.",
         ):
             ctk.set_appearance_mode("system")
-            ctk.set_default_color_theme("dark-blue")
+            ctk.set_default_color_theme(theme)
 
             self.create_root()
 
@@ -771,15 +793,19 @@ class GUI(Interface):
         Helper method to handle sending a message via the GUI.
         """
         logger.log("info", f"Sending message via event: {event}")
+        self.send_button.configure(state=tk.DISABLED)  # type: ignore
 
         # Get the message from the user
         message = self.get_user_input("text", "You: ")
 
         self.user_input.delete(0, tk.END)  # type: ignore
+        self.user_input.configure(state=tk.DISABLED)  # type: ignore
         self._broadcast_user_message(message)
+        self.user_input.configure(state=tk.NORMAL)  # type: ignore
 
         # Wait and respond
         self.root.after(500, self._respond, event)
+        self.send_button.configure(state=tk.NORMAL)  # type: ignore
 
     def _respond(self, event: Union[tk.Event, None] = None) -> None:  # pragma: no cover
         """

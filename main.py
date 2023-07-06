@@ -74,7 +74,9 @@ def gui(
         ]
     )
 
-    interface = GUI(show_header=not no_header, header=header)
+    interface = GUI(
+        show_header=not no_header, header=header, theme="assets/themes/dracula.json"
+    )
     logger.log("info", "Starting ACE.")
     interface.run()
 
