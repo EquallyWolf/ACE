@@ -1,6 +1,7 @@
 import tkinter as tk
 from abc import ABC, abstractmethod
 from typing import Union
+import os
 
 import customtkinter as ctk
 import toml
@@ -484,10 +485,6 @@ class GUI(Interface):
     header (str): (default: "")
         The start information to show the user.
 
-    theme (str): (default: "dark-blue")
-        The theme to use for the GUI, which can be either a built-in
-        name or a path to a JSON file.
-
     ### Methods:
 
     run():
@@ -495,11 +492,9 @@ class GUI(Interface):
         and run the intent, and broadcast the output.
     """
 
-    def __init__(
-        self, show_header: bool, header: str = "", theme: str = "dark-blue"
-    ) -> None:
+    def __init__(self, show_header: bool, header: str = "") -> None:
         super().__init__(show_header=show_header, header=header)
-        self._setup(theme)
+        self._setup()
         self._speech_output = SpeechOutput()
 
     @property
@@ -748,16 +743,12 @@ class GUI(Interface):
                 return self.user_input.get().removeprefix(prompt)
         return ""
 
-    def _setup(self, theme: str) -> None:  # pragma: no cover
+    def _setup(self) -> None:  # pragma: no cover
         """
         Helper method to create and place all widgets in the GUI, and
         set all the properties of the GUI.
 
-        ### Parameters:
-
-        theme (str):
-            The theme to use for the GUI, which can be either a built-in
-            name or a path to a JSON file.
+        ### Parameters: None
 
         ### Returns: None
 
@@ -770,7 +761,13 @@ class GUI(Interface):
             "Finished setting up GUI.",
         ):
             ctk.set_appearance_mode("system")
-            ctk.set_default_color_theme(theme)
+
+            # If the theme name json file exists then use that path,
+            # else use the theme name as it is
+            theme_file = f"assets/themes/{self.config['theme']}.json"
+            ctk.set_default_color_theme(
+                theme_file if os.path.exists(theme_file) else self.config["theme"]
+            )
 
             self.create_root()
 
