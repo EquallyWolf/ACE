@@ -73,6 +73,7 @@ class TestGUI:
                     "text": True,
                     "speech": False,
                 },
+                "theme": "dark-blue",
                 "test": True,
             },
         )
@@ -99,6 +100,7 @@ class TestGUI:
                     "text": True,
                     "speech": False,
                 },
+                "theme": "dark-blue",
                 "test": True,
             },
         )
@@ -122,6 +124,7 @@ class TestGUI:
                     "text": True,
                     "speech": False,
                 },
+                "theme": "dark-blue",
                 "test": True,
             },
         )
@@ -168,6 +171,7 @@ class TestGUI:
                     "text": True,
                     "speech": False,
                 },
+                "theme": "dark-blue",
                 "test": True,
             },
         )

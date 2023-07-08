@@ -18,19 +18,7 @@ colorama_init(autoreset=True)
 
 logger = Logger.from_toml(config_file_name="logs.toml", log_name="interfaces")
 
-COLOUR_SCHEME = {
-    "background": "#282A36",
-    "current_line": "#44475A",
-    "foreground": "#F8F8F2",
-    "comment": "#6272A4",
-    "cyan": "#8bE9FD",
-    "green": "#50FA7B",
-    "orange": "#FFb86C",
-    "pink": "#FF79C6",
-    "purple": "#BD93F9",
-    "red": "#FF5555",
-    "yellow": "#F1fA8C",
-}
+COLOUR_SCHEMES = toml.load("config/main.toml")["colour_schemes"]
 
 
 class Interface(ABC):  # pragma: no cover
@@ -588,8 +576,9 @@ class GUI(Interface):
                 wrap=tk.WORD,
             )
             self._chat_box.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            self._chat_box.tag_config("USER", foreground=COLOUR_SCHEME["cyan"])
-            self._chat_box.tag_config("ACE", foreground=COLOUR_SCHEME["yellow"])
+            theme = COLOUR_SCHEMES.get(self.config["theme"], {})
+            self._chat_box.tag_config("USER", foreground=theme.get("cyan", "cyan"))
+            self._chat_box.tag_config("ACE", foreground=theme.get("yellow", "yellow"))
         else:
             self._chat_box = None
 
