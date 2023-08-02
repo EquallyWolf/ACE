@@ -1,13 +1,16 @@
+import pandas as pd
+import json
+import os
 import tkinter as tk
 from abc import ABC, abstractmethod
 from typing import Union
-import os
 
 import customtkinter as ctk
 import toml
 from colorama import Fore
 from colorama import init as colorama_init
 
+from ace import __version__
 from ace.ai.models import IntentClassifierModel, IntentClassifierModelConfig
 from ace.inputs import CommandLineInput, Input
 from ace.intents import run_intent
@@ -732,6 +735,42 @@ class GUI(Interface):
                 return self.user_input.get().removeprefix(prompt)
         return ""
 
+    def create_menu(self) -> None:
+        """
+        Create the menu bar.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        # Create the menu bar object
+        menu_bar = tk.Menu(self.root)
+
+        # Need a menu with File and Help
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        save_menu = tk.Menu(file_menu, tearoff=0)
+        help_menu = tk.Menu(menu_bar, tearoff=0)
+
+        # Add the options to the menu
+        save_menu.add_command(label="Text", command=lambda: self._save("txt"))
+        save_menu.add_command(label="JSON", command=lambda: self._save("json"))
+        save_menu.add_command(label="CSV", command=lambda: self._save("csv"))
+
+        file_menu.add_cascade(label="Save", menu=save_menu)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self._close)
+
+        help_menu.add_command(label="About", command=self._about)
+
+        # Add the menus to the menu bar
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        menu_bar.add_cascade(label="Help", menu=help_menu)
+
+        # Add the menu bar to the root
+        self.root.config(menu=menu_bar)
+
     def _setup(self) -> None:  # pragma: no cover
         """
         Helper method to create and place all widgets in the GUI, and
@@ -759,6 +798,8 @@ class GUI(Interface):
             )
 
             self.create_root()
+
+            self.create_menu()
 
             # Add the widgets
             self.create_chat_box()
@@ -866,3 +907,138 @@ class GUI(Interface):
         if self.chat_box:
             self.chat_box.insert(tk.END, "Exiting...")
         self.root.after(1000, self.root.destroy)
+
+    def _about(self) -> None:  # pragma: no cover
+        """
+        Helper method to show the about information.
+
+        ### Parameters: None
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        about = "\n".join(
+            [
+                "ACE - Artificial Conciousness Engine\n",
+                f"Version: {__version__}\n",
+            ]
+        )
+        tk.messagebox.showinfo("About", about)  # type: ignore
+
+    def _save(self, option: str = "txt") -> None:  # pragma: no cover
+        """
+        Helper method to save the conversation.
+
+        ### Parameters:
+
+        option (str): (default: "txt")
+            The file type to save the conversation as.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        if not self.chat_box:
+            return
+        message_dict = self._get_messages()
+
+        file_types = {
+            "txt": self._save_txt,
+            "json": self._save_json,
+            "csv": self._save_csv,
+        }
+
+        if file_name := tk.filedialog.asksaveasfilename(  # type: ignore
+            filetypes=[(option.upper(), f".{option}")],
+            defaultextension=f".{option}",
+        ):
+            file_types[option](file_name, message_dict)
+            tk.messagebox.showinfo("Conversation Saved", f"Conversation saved to {file_name}")  # type: ignore
+
+    def _get_messages(self):  # pragma: no cover
+        """
+        Helper method to get the messages from the chat box.
+
+        ### Parameters: None
+
+        ### Returns: dict[int, str]
+            The dictionary of messages.
+
+        ### Raises: None
+        """
+        message_dict = {
+            idx: message.replace("\n", "")
+            for idx, message in enumerate(self.chat_box.get("1.0", tk.END).split("\n\n"))  # type: ignore
+            if message
+        }
+
+        # Remove empty lines
+        for idx in list(message_dict.keys()):
+            if not message_dict[idx]:
+                message_dict.pop(idx)
+
+        return message_dict
+
+    def _save_txt(
+        self, file_name: str, message_dict: dict[int, str]
+    ) -> None:  # pragma: no cover
+        """
+        Helper method to save the conversation as a text file.
+
+        ### Parameters:
+
+        file_name (str):
+            The name of the file to save the conversation to.
+
+        message_dict (dict[int, str]):
+            The dictionary of messages to save.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        with open(file_name, "w") as f:
+            f.write("\n\n".join(message_dict.values()))
+
+    def _save_json(
+        self, file_name: str, message_dict: dict[int, str]
+    ) -> None:  # pragma: no cover
+        """
+        Helper method to save the conversation as a JSON file.
+
+        ### Parameters:
+
+        file_name (str):
+            The name of the file to save the conversation to.
+
+        message_dict (dict[int, str]):
+            The dictionary of messages to save.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        with open(file_name, "w") as f:
+            json.dump(message_dict, f, indent=4)
+
+    def _save_csv(
+        self, file_name: str, message_dict: dict[int, str]
+    ) -> None:  # pragma: no cover
+        """
+        Helper method to save the conversation as a CSV file.
+
+        ### Parameters:
+
+        file_name (str):
+            The name of the file to save the conversation to.
+
+        message_dict (dict[int, str]):
+            The dictionary of messages to save.
+
+        ### Returns: None
+
+        ### Raises: None
+        """
+        df = pd.DataFrame.from_dict(message_dict, orient="index", columns=["message"])
+        df.to_csv(file_name, index_label="idx", header=True)
