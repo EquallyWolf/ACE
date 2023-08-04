@@ -52,11 +52,21 @@ You must also install the following dependencies:
 
 ### Running
 
-To start ACE, run the following command:
+ACE can be run as a CLI (Command Line Interface) or as a GUI (Graphical User Interface).
 
-```shell
-$ poetry run python main.py
-```
+To start ACE, run one of the following commands:
+
+-   CLI
+
+    ```shell
+    $ poetry run python main.py cli
+    ```
+
+-   GUI
+
+    ```shell
+    $ poetry run python main.py gui
+    ```
 
 ### Extending ACE
 
