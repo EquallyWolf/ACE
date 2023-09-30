@@ -16,6 +16,7 @@ r"""
 ########################################################################################
 """
 
+from pathlib import Path
 import warnings
 
 from ace.utils import Logger
@@ -151,6 +152,62 @@ def pipeline(
             logger.log("info", f"Intent: {result}")
 
             typer.echo(f"Intent: {result}")
+
+
+@app.command()
+def augment() -> None:
+    """
+    Augment the training data.
+    """
+    logger.log("info", "Starting the data augmentation pipeline.")
+    from ace.ai import data
+
+    available_datasets = {
+        "intent_classifier": data.IntentClassifierDataset,
+    }
+
+    # Show a menu of the available datasets and let the user choose one.
+    typer.echo("Available datasets:")
+    for i, dataset in enumerate(available_datasets):
+        typer.echo(f"{i + 1}. {dataset}")
+    typer.echo()
+
+    logger.log("info", f"Available datasets: {available_datasets}")
+
+    # Create a dataset object based on the user's choice.
+    dataset_choice = typer.prompt("Choose a dataset", type=int) - 1
+    while dataset_choice not in range(len(available_datasets)):
+        typer.echo("Invalid choice.")
+        dataset_choice = typer.prompt("Choose a dataset", type=int) - 1
+
+    dataset_name = list(available_datasets.keys())[dataset_choice]
+
+    logger.log("info", f"Chosen dataset: {dataset_name}")
+
+    # Let user decide on whether to visualise the data or augment it.
+    typer.echo("What do you want to do?")
+    typer.echo("1. Visualise the data")
+    typer.echo("2. Augment the data")
+    typer.echo()
+
+    choice = typer.prompt("Choose an option", type=int)
+    while choice not in range(1, 3):
+        typer.echo("Invalid choice.")
+        choice = typer.prompt("Choose an option", type=int)
+
+    logger.log("info", f"Chosen option: {choice}")
+
+    # Visualise the data.
+    if choice == 1:
+        typer.echo("===================== Visualising the data =====================")
+        dataset = available_datasets[dataset_name](Path("data/intents/intents.csv"))
+        typer.echo(dataset.data)
+
+    # Augment the data.
+    elif choice == 2:
+        raise NotImplementedError(
+            "Data augmentation is not yet implemented. Please check back later."
+        )
 
 
 if __name__ == "__main__":
