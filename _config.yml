@@ -2,4 +2,4 @@ theme: jekyll-theme-midnight
 show_downloads: true
 google_analytics:
 plugins:
-  - jemoji
+  - jekyll-spaceship
