@@ -8,9 +8,11 @@ IntentClassifierDataset:
 
 #### Functions: None
 """
-
+import random
 from pathlib import Path
+
 import pandas as pd
+from tqdm import tqdm
 
 from ace.utils import Logger
 
@@ -129,3 +131,192 @@ class IntentClassifierDataset:
         if shuffle:
             data = data.sample(frac=1, random_state=self._seed)
         return data
+
+
+def load_entities(entities_directory: str = "data/rules/entities") -> dict:
+    """
+    Load the entities into a dictionary from the entities files.
+
+    #### Parameters:
+
+    entities_directory: str (default: "data/rules/entities")
+        The directory containing the entity files.
+
+    #### Returns: dict
+        A dictionary of the entities and their values.
+
+    #### Raises: FileNotFoundError
+        If no entities are found in the given directory.
+    """
+    entities_dir = Path(entities_directory)
+
+    with logger.log_context(
+        "info",
+        f"Loading raw entities dictionary from: {entities_dir}",
+        "Finished creating raw entities",
+    ):
+        entities = {
+            entity.stem: entity.read_text().splitlines()
+            for entity in entities_dir.glob("*.entity")
+        }
+
+        # If entities is empty, then we have no entities
+        if not entities:
+            logger.log("fatal", "No entities found.")
+            raise FileNotFoundError(
+                f"No entities found in directory '{entities_dir}'."
+            )
+
+        return entities
+
+
+def load_intents(intents_directory: str = "data/rules/intents") -> dict:
+    """
+    Load the intents into a dictionary from the intents files.
+
+    #### Parameters:
+
+    intents_directory: str (default: "data/rules/intents")
+        The directory containing the intent files.
+
+    #### Returns: dict
+        A dictionary of the intents and their values.
+
+    #### Raises: FileNotFoundError
+        If no intents are found in the given directory.
+    """
+    intents_dir = Path(intents_directory)
+
+    with logger.log_context(
+        "info",
+        f"Loading raw intents dictionary from: {intents_dir}",
+        "Finished creating raw intents",
+    ):
+        intents = {
+            intent.stem: intent.read_text().splitlines()
+            for intent in intents_dir.glob("*.intent")
+        }
+
+        # If intents is empty, then we have no intents
+        if not intents:
+            logger.log("fatal", "No intents found.")
+            raise FileNotFoundError(
+                f"No intents found in directory '{intents_dir}'."
+            )
+
+    return intents
+
+
+def generate_intent_dataset(
+    raw_intents: dict, raw_entities: dict, attempts: int = 50, num_examples: int = 100
+) -> tuple[dict, int]:
+    """
+    Generates all combinations of intents and entities, but only if the entity is in the intent.
+
+    #### Parameters:
+
+    raw_intents: dict
+        A dictionary of the intents and their values.
+
+    raw_entities: dict
+        A dictionary of the entities and their values.
+
+    attempts: int (default: 50)
+        The number of attempts to try before failing.
+
+    num_examples: int (default: 100)
+        The number of examples to generate for each intent.
+
+    #### Returns: tuple[dict, int]
+        A tuple of the generated dataset and the number of failed attempts.
+    """
+
+    dataset = {}
+    fails = 0
+    for intent, intent_template in tqdm(raw_intents.items(), desc="Creating dataset"):
+        logger.log("info", f"Creating dataset for intent '{intent}'.")
+        dataset[intent] = []
+
+        fails = 0
+        while len(dataset[intent]) < num_examples and fails < attempts:
+            chosen_template = random.choice(intent_template).lower().split()
+            logger.log("debug", f"Generating template number {len(dataset[intent])}.")
+
+            for i, word in enumerate(chosen_template):
+                if word.startswith("{") and word.endswith("}"):
+                    entity = word[1:-1]
+
+                    if entity in raw_entities:
+                        chosen_entity = random.choice(raw_entities[entity])
+                        chosen_template[i] = chosen_entity
+                    else:
+                        logger.log(
+                            "warning",
+                            f"Entity '{entity}' not found in entities for intent '{intent}'.",
+                        )
+                        continue
+
+            chosen_template = " ".join(chosen_template).strip()
+
+            if chosen_template not in dataset[intent]:
+                dataset[intent].append(chosen_template)
+                fails = 0
+            else:
+                fails += 1
+
+    # Need to ensure that all intents have the same number of examples
+    # Therefore we need to find the intent with the least examples
+    # and select that number of examples for all intents
+    min_examples = min(len(examples) for examples in dataset.values())
+    logger.log("debug", f"Minimum number of examples: {min_examples}")
+
+    for intent, examples in dataset.items():
+        dataset[intent] = random.sample(examples, min_examples)
+
+    logger.log("debug", f"{dataset}")
+
+    return dataset, fails
+
+
+def save_dataset(
+    dataset: dict[str, list[str]], directory: str, filename: str = "dataset.csv"
+) -> None:
+    """
+    Save the dataset to the given format.
+
+    #### Parameters:
+
+    dataset: dict[str, list[str]]
+        The dataset to save.
+
+    directory: str
+        The directory to save the dataset to.
+
+    filename: str (default: "dataset.csv")
+        The name of the file to save the dataset to.
+
+    #### Returns: None
+
+    #### Raises: ValueError
+        If the file type is not '.csv'.
+    """
+    root_dir = Path(directory)
+    root_dir.mkdir(parents=True, exist_ok=True)
+
+    save_path = root_dir / filename
+
+    with logger.log_context(
+        "info",
+        f"Saving dataset to: {save_path}",
+        "Finished saving dataset.",
+    ):
+        if save_path.suffix[1:].lower() != "csv":
+            raise ValueError(
+                f"Invalid file type '{save_path.suffix[1:]}' for dataset. Must be '.csv'."
+            )
+        with save_path.open("w") as f:
+            f.write("phrase,intent\n")
+            for intent, examples in dataset.items():
+                for example in examples:
+                    if "{" not in example:
+                        f.write(f"{example},{intent}\n")

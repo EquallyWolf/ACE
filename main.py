@@ -16,7 +16,6 @@ r"""
 ########################################################################################
 """
 
-from pathlib import Path
 import warnings
 
 from ace.utils import Logger
@@ -34,10 +33,12 @@ with logger.log_context(
 
     from ace.interfaces import CLI, GUI
 
-app = typer.Typer()
+main_app = typer.Typer()
+datasets_app = typer.Typer()
+main_app.add_typer(datasets_app, name="datasets", help="Build and interact with datasets.")
 
 
-@app.command()
+@main_app.command()
 def cli(
     no_header: bool = typer.Option(
         False,
@@ -55,7 +56,7 @@ def cli(
     interface.run()
 
 
-@app.command()
+@main_app.command()
 def gui(
     no_header: bool = typer.Option(
         False,
@@ -80,7 +81,7 @@ def gui(
     interface.run()
 
 
-@app.command()
+@main_app.command()
 def pipeline(
     no_train: bool = typer.Option(
         False,
@@ -154,61 +155,84 @@ def pipeline(
             typer.echo(f"Intent: {result}")
 
 
-@app.command()
-def augment() -> None:
+@main_app.command()
+def datasets() -> None:
     """
-    Augment the training data.
+    Interact with the datasets.
     """
-    logger.log("info", "Starting the data augmentation pipeline.")
-    from ace.ai import data
 
-    available_datasets = {
-        "intent_classifier": data.IntentClassifierDataset,
-    }
 
-    # Show a menu of the available datasets and let the user choose one.
-    typer.echo("Available datasets:")
-    for i, dataset in enumerate(available_datasets):
-        typer.echo(f"{i + 1}. {dataset}")
+@datasets_app.command()
+def intents(
+    num_examples: int = typer.Option(
+        20,
+        "--examples",
+        "-e",
+        help="The number of examples to keep for each intent.",
+        show_default=True,
+    ),
+    rand_seed: int = typer.Option(
+        None,
+        "--seed",
+        "-s",
+        help="The random seed to use when sampling examples.",
+        show_default=True,
+    ),
+    save_dir: str = typer.Option(
+        "data/datasets",
+        "--save-dir",
+        "-d",
+        help="The directory to save the dataset to.",
+        show_default=True,
+    ),
+) -> None:
+    """
+    Interact with the intents dataset.
+
+    You can generate a new dataset, visualise the dataset, and save the dataset.
+    """
+    logger.log("info", "Interacting with the intents dataset.")
+
+    import random
+    from pprint import pprint
+
+    from ace.ai.data import (
+        generate_intent_dataset,
+        load_entities,
+        load_intents,
+        save_dataset,
+    )
+
+    random.seed = rand_seed
+    logger.log("info", f"Random seed: {rand_seed}")
+
+    typer.echo("============= Intents Dataset =============")
+
+    dataset, fails = generate_intent_dataset(
+        load_intents(), load_entities(), num_examples=num_examples
+    )
+    # Need to adjust the number of examples, as some examples may have failed to generate.
+    num_examples = len(dataset[list(dataset.keys())[0]])
+
+    typer.echo(
+        f"Generated {len(dataset)} intents with {num_examples} examples in each."
+    )
+    typer.echo(f"Failed to generate {fails} examples.")
+    typer.echo(f"Random seed: {random.seed}")
     typer.echo()
 
-    logger.log("info", f"Available datasets: {available_datasets}")
+    if typer.confirm("Visualise the dataset?"):
+        typer.echo("Visualising the dataset...")
+        logger.log("info", "Visualising the dataset.")
 
-    # Create a dataset object based on the user's choice.
-    dataset_choice = typer.prompt("Choose a dataset", type=int) - 1
-    while dataset_choice not in range(len(available_datasets)):
-        typer.echo("Invalid choice.")
-        dataset_choice = typer.prompt("Choose a dataset", type=int) - 1
+        pprint(dataset)
+        typer.echo()
 
-    dataset_name = list(available_datasets.keys())[dataset_choice]
-
-    logger.log("info", f"Chosen dataset: {dataset_name}")
-
-    # Let user decide on whether to visualise the data or augment it.
-    typer.echo("What do you want to do?")
-    typer.echo("1. Visualise the data")
-    typer.echo("2. Augment the data")
-    typer.echo()
-
-    choice = typer.prompt("Choose an option", type=int)
-    while choice not in range(1, 3):
-        typer.echo("Invalid choice.")
-        choice = typer.prompt("Choose an option", type=int)
-
-    logger.log("info", f"Chosen option: {choice}")
-
-    # Visualise the data.
-    if choice == 1:
-        typer.echo("===================== Visualising the data =====================")
-        dataset = available_datasets[dataset_name](Path("data/intents/intents.csv"))
-        typer.echo(dataset.data)
-
-    # Augment the data.
-    elif choice == 2:
-        raise NotImplementedError(
-            "Data augmentation is not yet implemented. Please check back later."
-        )
+    if typer.confirm("Save the dataset?"):
+        file_name = f"intent_classification_dataset_{num_examples}-{len(dataset)}.csv"
+        save_dataset(dataset, directory=save_dir, filename=file_name)
+        typer.echo(f"Saved the dataset to '{save_dir}/{file_name}'")
 
 
 if __name__ == "__main__":
-    app()
+    main_app()
