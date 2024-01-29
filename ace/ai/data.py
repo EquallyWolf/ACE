@@ -209,7 +209,7 @@ def load_intents(intents_directory: str = "data/rules/intents") -> dict:
 
 def generate_intent_dataset(
     raw_intents: dict, raw_entities: dict, attempts: int = 50, num_examples: int = 100
-) -> tuple[dict, int]:
+) -> tuple[dict, dict]:
     """
     Generates all combinations of intents and entities, but only if the entity is in the intent.
 
@@ -227,18 +227,27 @@ def generate_intent_dataset(
     num_examples: int (default: 100)
         The number of examples to generate for each intent.
 
-    #### Returns: tuple[dict, int]
-        A tuple of the generated dataset and the number of failed attempts.
+    #### Returns: tuple[dict, dict]
+        A tuple of the generated dataset and a dictionary of the
+        number of fails for each intent.
+
+        dict 1 - The generated dataset.
+            format: {intent: [example1, example2, ...]}
+
+        dict 2 - The number of fails for each intent.
+            format: {intent: {"total": int, "entity": list, "duplicate": int}}
+
+    #### Raises: None
     """
 
     dataset = {}
-    fails = 0
+    fails = {}
     for intent, intent_template in tqdm(raw_intents.items(), desc="Creating dataset"):
         logger.log("info", f"Creating dataset for intent '{intent}'.")
         dataset[intent] = []
 
-        fails = 0
-        while len(dataset[intent]) < num_examples and fails < attempts:
+        fails[intent] = {"total": 0, "entity": [], "duplicate": 0}
+        while len(dataset[intent]) < num_examples and fails[intent]["total"] < attempts:
             chosen_template = random.choice(intent_template).lower().split()
             logger.log("debug", f"Generating template number {len(dataset[intent])}.")
 
@@ -250,30 +259,24 @@ def generate_intent_dataset(
                         chosen_entity = random.choice(raw_entities[entity])
                         chosen_template[i] = chosen_entity
                     else:
-                        logger.log(
-                            "warning",
-                            f"Entity '{entity}' not found in entities for intent '{intent}'.",
-                        )
+                        fails[intent]["entity"].append(entity)
                         continue
 
             chosen_template = " ".join(chosen_template).strip()
 
+            # Add quote marks around the template if it contains a comma
+            if "," in chosen_template:
+                chosen_template = f'"{chosen_template}"'
+
             if chosen_template not in dataset[intent]:
                 dataset[intent].append(chosen_template)
-                fails = 0
             else:
-                fails += 1
+                fails[intent]["duplicate"] += 1
 
-    # Need to ensure that all intents have the same number of examples
-    # Therefore we need to find the intent with the least examples
-    # and select that number of examples for all intents
-    min_examples = min(len(examples) for examples in dataset.values())
-    logger.log("debug", f"Minimum number of examples: {min_examples}")
-
-    for intent, examples in dataset.items():
-        dataset[intent] = random.sample(examples, min_examples)
+            fails[intent]["total"] = len(fails[intent]["entity"]) + fails[intent]["duplicate"]
 
     logger.log("debug", f"{dataset}")
+    logger.log("debug", f"{fails}")
 
     return dataset, fails
 

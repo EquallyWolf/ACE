@@ -171,6 +171,13 @@ def intents(
         help="The number of examples to keep for each intent.",
         show_default=True,
     ),
+    attempts: int = typer.Option(
+        50,
+        "--attempts",
+        "-a",
+        help="The number of attempts to generate an example.",
+        show_default=True,
+    ),
     rand_seed: int = typer.Option(
         None,
         "--seed",
@@ -195,6 +202,7 @@ def intents(
 
     import random
     from pprint import pprint
+    from datetime import datetime
 
     from ace.ai.data import (
         generate_intent_dataset,
@@ -209,16 +217,17 @@ def intents(
     typer.echo("============= Intents Dataset =============")
 
     dataset, fails = generate_intent_dataset(
-        load_intents(), load_entities(), num_examples=num_examples
+        load_intents(), load_entities(), num_examples=num_examples, attempts=attempts
     )
-    # Need to adjust the number of examples, as some examples may have failed to generate.
-    num_examples = len(dataset[list(dataset.keys())[0]])
 
-    typer.echo(
-        f"Generated {len(dataset)} intents with {num_examples} examples in each."
-    )
-    typer.echo(f"Failed to generate {fails} examples.")
     typer.echo(f"Random seed: {random.seed}")
+    total_fails = sum(fails[intent]["total"] for intent in fails)
+    typer.echo(f"Failed to generate {total_fails} examples:")
+    for intent in fails:
+        typer.echo(f"    {intent}: {fails[intent]['total']}")
+        for fail in fails[intent]["entity"]:
+            typer.echo(f"        {fail}")
+
     typer.echo()
 
     if typer.confirm("Visualise the dataset?"):
@@ -229,7 +238,8 @@ def intents(
         typer.echo()
 
     if typer.confirm("Save the dataset?"):
-        file_name = f"intent_classification_dataset_{num_examples}-{len(dataset)}.csv"
+        suffix = datetime.now().strftime("%Y%m%d")
+        file_name = f"UK_EN_PA_Intents_{suffix}.csv"
         save_dataset(dataset, directory=save_dir, filename=file_name)
         typer.echo(f"Saved the dataset to '{save_dir}/{file_name}'")
 

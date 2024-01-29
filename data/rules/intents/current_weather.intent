@@ -11,3 +11,26 @@ what is the weather like today
 what's the current weather like
 todays weather
 todays weather for {location}
+will it {weather_type1} today
+will it be {weather_type2} today
+will there be {weather_type2} today
+will todays weather be {weather_type2}
+will today's weather be {weather_type2}
+will it {weather_type1} today?
+will it be {weather_type2} today?
+will there be {weather_type2} today?
+will todays weather be {weather_type2}?
+will today's weather be {weather_type2}?
+please tell me the current weather
+please get weather in {location}
+please get current weather
+weather now please
+weather today please
+weather forecast please
+weather in {location} please
+weather in {location} today please
+weather for today please
+what is the weather like today please
+please tell me what's the current weather like
+todays weather
+todays weather for {location}

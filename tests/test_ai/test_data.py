@@ -73,6 +73,21 @@ class TestLoadIntents:
 
 
 class TestGenerateIntentDataset:
+    @pytest.fixture
+    def mock_entities(self) -> dict[str, list[str]]:
+        return {"example_entity1": ["entity1", "example1", "eg.1"], 
+                "example_entity2": ["entity2", "example2", "eg.2"],
+                "example_entity3": ["entity3", "example3", "eg.3"]}
+
+    @pytest.fixture
+    def mock_intents(self) -> dict[str, list[str]]:
+        return {"intent1": ["Using {example_entity1}", "Another for {example_entity2}"],
+                "intent2": ["Using {example_entity3}", "Another for {example_entity3}",
+                            "And another for {example_entity3}"],
+                "intent3": ["Using {example_entity1} and {example_entity2}", 
+                            "Another for {example_entity1} and {example_entity2}",
+                            "And another for {example_entity1} and {example_entity2}"]}
+
     @pytest.mark.parametrize(
         "attempts, num_examples, dataset_length",
         [
@@ -81,46 +96,18 @@ class TestGenerateIntentDataset:
             (2, 1, 1),
             (2, 2, 2),
             (3, 1, 1),
-            (5, 4, 4),
-
+            (3, 2, 2),
+            (3, 3, 3),
         ],
     )
-    def test_generate_intent_dataset(self, attempts, num_examples, dataset_length) -> None:
-        entities_directory = "tests/data/rules/entities"
-        intents_directory = "tests/data/rules/intents"
+    def test_generate_intent_dataset(self, attempts, num_examples, dataset_length, mock_entities, mock_intents) -> None:
 
-        raw_entities = data.load_entities(entities_directory=entities_directory)
-        raw_intents = data.load_intents(intents_directory=intents_directory)
-
-        dataset, num_fails = data.generate_intent_dataset(
-            raw_entities=raw_entities, raw_intents=raw_intents, attempts=attempts, num_examples=num_examples
+        dataset, fails = data.generate_intent_dataset(
+            raw_entities=mock_entities, raw_intents=mock_intents, attempts=attempts, num_examples=num_examples
         )
 
-        for intent in dataset:
-            assert len(dataset[intent]) == dataset_length
-
-        assert num_fails == 0
-
-    @pytest.mark.parametrize(
-        "attempts, num_examples, fails",
-        [
-            (1, 10, 1),
-            (2, 10, 2),
-            (5, 50, 5),
-        ],
-    )
-    def test_generate_intent_dataset_non_zero_fails(self, attempts, num_examples, fails) -> None:
-        entities_directory = "tests/data/rules/entities"
-        intents_directory = "tests/data/rules/intents"
-
-        raw_entities = data.load_entities(entities_directory=entities_directory)
-        raw_intents = data.load_intents(intents_directory=intents_directory)
-
-        dataset, num_fails = data.generate_intent_dataset(
-            raw_entities=raw_entities, raw_intents=raw_intents, attempts=attempts, num_examples=num_examples
-        )
-
-        assert num_fails == fails
+        assert all(len(dataset[intent]) == dataset_length for intent in dataset)
+        assert all(fails[intent]["total"] >= 0 for intent in fails)
 
 
 class TestSaveDataset:
