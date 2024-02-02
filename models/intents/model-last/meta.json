@@ -2,36 +2,41 @@
   "lang":"en",
   "name":"pipeline",
   "version":"0.0.0",
-  "spacy_version":">=3.4.2,<3.5.0",
+  "spacy_version":">=3.6.1,<3.7.0",
   "description":"",
   "author":"",
   "email":"",
   "url":"",
   "license":"",
-  "spacy_git_version":"3d0e89536",
+  "spacy_git_version":"458bc5f45",
   "vectors":{
-    "width":0,
-    "vectors":0,
-    "keys":0,
-    "name":null,
+    "width":300,
+    "vectors":514157,
+    "keys":514157,
+    "name":"en_vectors",
     "mode":"default"
   },
   "labels":{
+    "tok2vec":[
+
+    ],
     "textcat":[
-      "close_app",
+      "tomorrow_weather",
       "show_todo_list",
-      "open_app",
-      "greeting",
-      "goodbye",
       "current_weather",
-      "add_todo",
-      "tomorrow_weather"
+      "close_app",
+      "goodbye",
+      "greeting",
+      "open_app",
+      "add_todo"
     ]
   },
   "pipeline":[
+    "tok2vec",
     "textcat"
   ],
   "components":[
+    "tok2vec",
     "textcat"
   ],
   "disabled":[
@@ -46,9 +51,9 @@
     "cats_macro_p":1.0,
     "cats_macro_r":1.0,
     "cats_macro_f":1.0,
-    "cats_macro_auc":0.0,
+    "cats_macro_auc":1.0,
     "cats_f_per_type":{
-      "close_app":{
+      "tomorrow_weather":{
         "p":1.0,
         "r":1.0,
         "f":1.0
@@ -58,12 +63,12 @@
         "r":1.0,
         "f":1.0
       },
-      "open_app":{
+      "current_weather":{
         "p":1.0,
         "r":1.0,
         "f":1.0
       },
-      "greeting":{
+      "close_app":{
         "p":1.0,
         "r":1.0,
         "f":1.0
@@ -73,7 +78,12 @@
         "r":1.0,
         "f":1.0
       },
-      "current_weather":{
+      "greeting":{
+        "p":1.0,
+        "r":1.0,
+        "f":1.0
+      },
+      "open_app":{
         "p":1.0,
         "r":1.0,
         "f":1.0
@@ -82,14 +92,9 @@
         "p":1.0,
         "r":1.0,
         "f":1.0
-      },
-      "tomorrow_weather":{
-        "p":1.0,
-        "r":1.0,
-        "f":1.0
       }
     },
-    "cats_macro_auc_per_type":0.0,
-    "textcat_loss":0.0184183551
+    "tok2vec_loss":1.0847450827,
+    "textcat_loss":0.0026457024
   }
 }
