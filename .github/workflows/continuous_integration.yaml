@@ -24,17 +24,16 @@ jobs:
     steps:
       - name: Checkout using actions/checkout@v3
         uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Checkout LFS objects
+        run: git lfs checkout
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup Git LFS
-        run: git lfs install
-
-      - name: View Git LFS version
-        run: git lfs version
 
       - name: Install poetry ${{ matrix.poetry-version }}
         run: |
