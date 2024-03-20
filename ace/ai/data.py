@@ -155,10 +155,17 @@ def load_entities(entities_directory: str = "data/rules/entities") -> dict:
         f"Loading raw entities dictionary from: {entities_dir}",
         "Finished creating raw entities",
     ):
-        entities = {
-            entity.stem: entity.read_text().splitlines()
-            for entity in entities_dir.glob("*.entity")
-        }
+        entities = {}
+        for entity in entities_dir.glob("*.entity"):
+            logger.log("debug", f"Loading entity: {entity}")
+
+            content = entity.read_text().splitlines()
+
+            if not content:
+                logger.log("warning", f"Skipping empty entity file: {entity}")
+                continue
+
+            entities[entity.stem] = content
 
         # If entities is empty, then we have no entities
         if not entities:

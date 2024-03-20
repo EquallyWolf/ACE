@@ -57,6 +57,11 @@ class TestLoadEntities:
         with pytest.raises(FileNotFoundError):
             data.load_entities(entities_directory="tests/data/rules/invalid")
 
+    def test_load_entities_empty_entity(self) -> None:
+        raw_entities = data.load_entities(entities_directory="tests/data/rules/validations/empty")
+
+        assert len(raw_entities) == 1
+
 
 class TestLoadIntents:
     def test_load_intents(self) -> None:
