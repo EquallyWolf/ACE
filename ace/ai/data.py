@@ -8,8 +8,10 @@ IntentClassifierDataset:
 
 #### Functions: None
 """
-import random
+
+import itertools
 from pathlib import Path
+import re
 
 import pandas as pd
 from tqdm import tqdm
@@ -170,9 +172,7 @@ def load_entities(entities_directory: str = "data/rules/entities") -> dict:
         # If entities is empty, then we have no entities
         if not entities:
             logger.log("fatal", "No entities found.")
-            raise FileNotFoundError(
-                f"No entities found in directory '{entities_dir}'."
-            )
+            raise FileNotFoundError(f"No entities found in directory '{entities_dir}'.")
 
         return entities
 
@@ -207,16 +207,14 @@ def load_intents(intents_directory: str = "data/rules/intents") -> dict:
         # If intents is empty, then we have no intents
         if not intents:
             logger.log("fatal", "No intents found.")
-            raise FileNotFoundError(
-                f"No intents found in directory '{intents_dir}'."
-            )
+            raise FileNotFoundError(f"No intents found in directory '{intents_dir}'.")
 
     return intents
 
 
 def generate_intent_dataset(
-    raw_intents: dict, raw_entities: dict, attempts: int = 50, num_examples: int = 100
-) -> tuple[dict, dict]:
+    raw_intents: dict, raw_entities: dict, num_examples: int = 100
+) -> dict[str, set[str]]:
     """
     Generates all combinations of intents and entities, but only if the entity is in the intent.
 
@@ -228,64 +226,58 @@ def generate_intent_dataset(
     raw_entities: dict
         A dictionary of the entities and their values.
 
-    attempts: int (default: 50)
-        The number of attempts to try before failing.
-
     num_examples: int (default: 100)
         The number of examples to generate for each intent.
 
-    #### Returns: tuple[dict, dict]
-        A tuple of the generated dataset and a dictionary of the
-        number of fails for each intent.
-
-        dict 1 - The generated dataset.
-            format: {intent: [example1, example2, ...]}
-
-        dict 2 - The number of fails for each intent.
-            format: {intent: {"total": int, "entity": list, "duplicate": int}}
+    #### Returns: dict[str, set[str]]
+        The generated dataset.
+            format: {intent: {example1, example2, ...}}
 
     #### Raises: None
     """
 
     dataset = {}
-    fails = {}
-    for intent, intent_template in tqdm(raw_intents.items(), desc="Creating dataset"):
+    for intent, intent_templates in tqdm(raw_intents.items(), desc="Creating dataset"):
         logger.log("info", f"Creating dataset for intent '{intent}'.")
-        dataset[intent] = []
 
-        fails[intent] = {"total": 0, "entity": [], "duplicate": 0}
-        while len(dataset[intent]) < num_examples and fails[intent]["total"] < attempts:
-            chosen_template = random.choice(intent_template).lower().split()
-            logger.log("debug", f"Generating template number {len(dataset[intent])}.")
+        examples = []
+        for template in intent_templates:
+            logger.log("debug", f"Generating examples for template: {template}")
 
-            for i, word in enumerate(chosen_template):
-                if word.startswith("{") and word.endswith("}"):
-                    entity = word[1:-1]
+            # Check if we have any entities in the template
+            entities = re.findall(r"{(.*?)}", template)
+            logger.log("debug", f"Entities in template: {entities}")
 
-                    if entity in raw_entities:
-                        chosen_entity = random.choice(raw_entities[entity])
-                        chosen_template[i] = chosen_entity
-                    else:
-                        fails[intent]["entity"].append(entity)
-                        continue
+            if not entities:
+                examples.append(template)
+                continue
 
-            chosen_template = " ".join(chosen_template).strip()
+            # Generate all possible combinations of entities
+            try:
+                examples = list(
+                    map(
+                        lambda combination: template.format(
+                            **dict(zip(entities, combination))
+                        ),
+                        itertools.product(
+                            *[raw_entities[entity] for entity in entities]
+                        ),
+                    )
+                )
+            except KeyError as e:
+                logger.log("warning", f"No entity examples found for: {e}")
+                continue
 
-            # Add quote marks around the template if it contains a comma
-            if "," in chosen_template:
-                chosen_template = f'"{chosen_template}"'
+        dataset[intent] = set(examples[:num_examples])
 
-            if chosen_template not in dataset[intent]:
-                dataset[intent].append(chosen_template)
-            else:
-                fails[intent]["duplicate"] += 1
+    # Check if we have any examples
+    if not dataset:
+        logger.log("critical", "No examples generated.")
+        raise ValueError("No examples generated.")
 
-            fails[intent]["total"] = len(fails[intent]["entity"]) + fails[intent]["duplicate"]
+    logger.log("info", f"Dataset: {dataset}")
 
-    logger.log("debug", f"{dataset}")
-    logger.log("debug", f"{fails}")
-
-    return dataset, fails
+    return dataset
 
 
 def save_dataset(

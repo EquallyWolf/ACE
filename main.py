@@ -35,7 +35,9 @@ with logger.log_context(
 
 main_app = typer.Typer()
 datasets_app = typer.Typer()
-main_app.add_typer(datasets_app, name="datasets", help="Build and interact with datasets.")
+main_app.add_typer(
+    datasets_app, name="datasets", help="Build and interact with datasets."
+)
 
 
 @main_app.command()
@@ -171,13 +173,6 @@ def intents(
         help="The number of examples to keep for each intent.",
         show_default=True,
     ),
-    attempts: int = typer.Option(
-        50,
-        "--attempts",
-        "-a",
-        help="The number of attempts to generate an example.",
-        show_default=True,
-    ),
     rand_seed: int = typer.Option(
         None,
         "--seed",
@@ -216,17 +211,11 @@ def intents(
 
     typer.echo("============= Intents Dataset =============")
 
-    dataset, fails = generate_intent_dataset(
-        load_intents(), load_entities(), num_examples=num_examples, attempts=attempts
+    dataset = generate_intent_dataset(
+        load_intents(), load_entities(), num_examples=num_examples
     )
 
     typer.echo(f"Random seed: {random.seed}")
-    total_fails = sum(fails[intent]["total"] for intent in fails)
-    typer.echo(f"Failed to generate {total_fails} examples:")
-    for intent in fails:
-        typer.echo(f"    {intent}: {fails[intent]['total']}")
-        for fail in fails[intent]["entity"]:
-            typer.echo(f"        {fail}")
 
     typer.echo()
 
