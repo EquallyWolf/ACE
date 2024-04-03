@@ -12,6 +12,7 @@ IntentClassifierDataset:
 import itertools
 from pathlib import Path
 import re
+import csv
 
 import pandas as pd
 from tqdm import tqdm
@@ -300,25 +301,48 @@ def save_dataset(
     #### Returns: None
 
     #### Raises: ValueError
-        If the file type is not '.csv'.
+        If the file type is not supported.
     """
     root_dir = Path(directory)
     root_dir.mkdir(parents=True, exist_ok=True)
 
     save_path = root_dir / filename
 
+    handlers = {
+        ".csv": _save_as_csv,
+    }
+
     with logger.log_context(
         "info",
         f"Saving dataset to: {save_path}",
         "Finished saving dataset.",
     ):
-        if save_path.suffix[1:].lower() != "csv":
-            raise ValueError(
-                f"Invalid file type '{save_path.suffix[1:]}' for dataset. Must be '.csv'."
-            )
-        with save_path.open("w") as f:
-            f.write("phrase,intent\n")
-            for intent, examples in dataset.items():
-                for example in examples:
-                    if "{" not in example:
-                        f.write(f"{example},{intent}\n")
+        if handler := handlers.get(save_path.suffix):
+            handler(dataset, save_path)
+        else:
+            logger.log("critical", f"Unsupported file type: {save_path.suffix}")
+            raise ValueError(f"Unsupported file type: {save_path.suffix}")
+
+
+def _save_as_csv(dataset: dict[str, list[str]], save_path: Path) -> None:
+    """
+    Save the dataset as a CSV file.
+
+    #### Parameters:
+
+    dataset: dict[str, list[str]]
+        The dataset to save.
+
+    save_path: Path
+        The path to save the dataset to.
+
+    #### Returns: None
+
+    #### Raises: None
+    """
+    with open(save_path, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["phrase", "intent"])
+        for intent, examples in dataset.items():
+            for example in examples:
+                writer.writerow([example, intent])
