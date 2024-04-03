@@ -65,7 +65,7 @@ class IntentClassifierDataset:
 
     def __getitem__(self, index: int) -> tuple[str, str]:
         """
-        Get a tuple of the text and intent at the given index.
+        Get a tuple of the phrase and intent at the given index.
 
         #### Parameters:
 
@@ -73,11 +73,12 @@ class IntentClassifierDataset:
             The index of the data to get.
 
         #### Returns: tuple[str, str]
-            A tuple of the text and intent at the given index.
+            A tuple of the phrase and intent at the given index.
 
         #### Raises: None
         """
-        return tuple(self.data.iloc[index])
+        result = self.data.iloc[index]
+        return result["phrase"], result["intent"]
 
     @property
     def intents(self) -> list:
