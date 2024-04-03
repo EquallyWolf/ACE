@@ -215,7 +215,7 @@ def load_intents(intents_directory: str = "data/rules/intents") -> dict:
 
 def generate_intent_dataset(
     raw_intents: dict, raw_entities: dict, num_examples: int = 100
-) -> dict[str, set[str]]:
+) -> dict[str, set[str] | list[str]]:
     """
     Generates all combinations of intents and entities, but only if the entity is in the intent.
 
@@ -230,9 +230,10 @@ def generate_intent_dataset(
     num_examples: int (default: 100)
         The number of examples to generate for each intent.
 
-    #### Returns: dict[str, set[str]]
+    #### Returns: dict[str, set[str] | list[str]
         The generated dataset.
             format: {intent: {example1, example2, ...}}
+                    {intent: [example1, example2, ...]}
 
     #### Raises: None
     """
@@ -282,14 +283,16 @@ def generate_intent_dataset(
 
 
 def save_dataset(
-    dataset: dict[str, list[str]], directory: str, filename: str = "dataset.csv"
+    dataset: dict[str, set[str] | list[str]],
+    directory: str,
+    filename: str = "dataset.csv",
 ) -> None:
     """
     Save the dataset to the given format.
 
     #### Parameters:
 
-    dataset: dict[str, list[str]]
+    dataset: dict[str, set[str] | list[str]]
         The dataset to save.
 
     directory: str
@@ -324,13 +327,13 @@ def save_dataset(
             raise ValueError(f"Unsupported file type: {save_path.suffix}")
 
 
-def _save_as_csv(dataset: dict[str, list[str]], save_path: Path) -> None:
+def _save_as_csv(dataset: dict[str, set[str] | list[str]], save_path: Path) -> None:
     """
     Save the dataset as a CSV file.
 
     #### Parameters:
 
-    dataset: dict[str, list[str]]
+    dataset: dict[str, set[str] | list[str]]
         The dataset to save.
 
     save_path: Path

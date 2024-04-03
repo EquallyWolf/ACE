@@ -150,12 +150,20 @@ class TestGenerateIntentDataset:
 
 
 class TestSaveDataset:
-    def test_save_dataset(self) -> None:
-        dataset = {
-            "intent1": ["example1", "example2"],
-            "intent2": ["example3", "example4"],
-        }
-
+    @pytest.mark.parametrize(
+        "dataset",
+        [
+            {
+                "intent1": ["example1", "example2"],
+                "intent2": ["example3", "example4"],
+            },
+            {
+                "intent1": {"example1", "example2"},
+                "intent2": {"example3", "example4"},
+            },
+        ],
+    )
+    def test_save_dataset(self, dataset) -> None:
         save_dir = "tests/data/datasets"
         save_filename = "test_dataset.csv"
 
@@ -166,12 +174,20 @@ class TestSaveDataset:
         Path(f"{save_dir}/{save_filename}").unlink()
         Path(f"{save_dir}").rmdir()
 
-    def test_invalid_file_type(self) -> None:
-        dataset = {
-            "intent1": ["example1", "example2"],
-            "intent2": ["example3", "example4"],
-        }
-
+    @pytest.mark.parametrize(
+        "dataset",
+        [
+            {
+                "intent1": ["example1", "example2"],
+                "intent2": ["example3", "example4"],
+            },
+            {
+                "intent1": {"example1", "example2"},
+                "intent2": {"example3", "example4"},
+            },
+        ],
+    )
+    def test_invalid_file_type(self, dataset) -> None:
         save_dir = "tests/data/datasets"
         save_filename = "test_dataset.txt"
 
