@@ -197,3 +197,17 @@ class TestSaveDataset:
             )
 
         assert not Path(f"{save_dir}/{save_filename}").exists()
+
+
+class TestLoadUtterances:
+    def test_load_utterances(self) -> None:
+        utterances = data.load_utterances(utterances_directory="tests/data/speech")
+
+        assert len(utterances) == 2
+
+        for utterance in utterances:
+            assert utterance in ["example1", "example2"]
+
+    def test_load_utterances_invalid_directory(self) -> None:
+        with pytest.raises(FileNotFoundError):
+            data.load_utterances(utterances_directory="tests/data/invalid")

@@ -353,3 +353,33 @@ def _save_as_csv(
         for intent, examples in dataset.items():
             for example in examples:
                 writer.writerow([example, intent])
+
+
+def load_utterances(utterances_directory: str = "data/speech") -> list[str]:
+    """
+    Load the utterances from the given file.
+
+    #### Parameters:
+
+    utterances_directory: str (default: "data/speech")
+        The directory containing the utterances file.
+
+    #### Returns: list[str]
+        A list of the utterances.
+
+    #### Raises: FileNotFoundError
+        If no utterances are found in the given file.
+    """
+    utterances_file = Path(utterances_directory) / "utterances.txt"
+
+    logger.log("info", f"Loading utterances from: {utterances_file}")
+    if not utterances_file.exists():
+        logger.log("critical", "No utterances found.")
+        raise FileNotFoundError(
+            f"No utterances file found in directory '{utterances_file}'."
+        )
+
+    utterances = utterances_file.read_text().splitlines()
+    logger.log("debug", f"Loaded utterances: {utterances}")
+
+    return utterances
