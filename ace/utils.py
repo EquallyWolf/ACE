@@ -19,7 +19,9 @@ from contextlib import contextmanager
 from datetime import datetime as dt
 from pathlib import Path
 from typing import Callable, Union
+import wave
 
+import pyaudio
 import toml
 
 
@@ -464,3 +466,71 @@ class Logger:
             if log_config
             else Logger()
         )
+
+
+def record_audio(duration: float) -> list:  # pragma: no cover
+    """
+    Record audio from the microphone.
+
+    #### Parameters:
+
+    duration: float
+        The duration to record audio for in seconds.
+
+    #### Returns: list
+        The audio frames.
+
+    #### Raises: None
+    """
+    # Record the user's response
+    p = pyaudio.PyAudio()
+
+    RATE = 16000
+
+    stream = p.open(
+        format=pyaudio.paInt16,
+        channels=1,
+        rate=RATE,
+        input=True,
+        frames_per_buffer=1024,
+    )
+
+    frames = []
+
+    for _ in range(int(44100 / 1024 * duration)):
+        data = stream.read(1024)
+        frames.append(data)
+
+    stream.stop_stream()
+    stream.close()
+
+    p.terminate()
+
+    return frames
+
+
+def save_audio(frames: list, save_path: str) -> None:  # pragma: no cover
+    """
+    Save the audio frames to a WAV file.
+
+    #### Parameters:
+
+    frames: list
+        The audio frames to save.
+
+    save_path: str
+        The path to save the audio file to, including the file name.
+
+    #### Returns: None
+
+    #### Raises: None
+    """
+    # Ensure the save path has all the directories created
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Save the audio file
+    with wave.open(save_path, "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(pyaudio.PyAudio().get_sample_size(pyaudio.paInt16))
+        wf.setframerate(44100)
+        wf.writeframes(b"".join(frames))

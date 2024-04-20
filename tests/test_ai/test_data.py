@@ -201,7 +201,7 @@ class TestSaveDataset:
 
 class TestLoadUtterances:
     def test_load_utterances(self) -> None:
-        utterances = data.load_utterances(utterances_directory="tests/data/speech")
+        utterances = data.load_utterances(utterances_directory="tests/data/rules")
 
         assert len(utterances) == 2
 
@@ -211,3 +211,56 @@ class TestLoadUtterances:
     def test_load_utterances_invalid_directory(self) -> None:
         with pytest.raises(FileNotFoundError):
             data.load_utterances(utterances_directory="tests/data/invalid")
+
+
+class TestGenerateSpeechDataset:
+    test_utterances_directory = "tests/data/rules"
+    test_speech_directory = "tests/data/speech"
+
+    def mock_record_audio(self, duration: float = 1) -> list:
+        return [b"\x00" * 1024] * int(44100 / 1024 * duration)
+
+    def mock_save_audio(self, frames: list, path: str) -> None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).touch()
+
+    def teardown_method(self) -> None:
+        # Clear all files and folders created during the test
+        for path in Path(self.test_speech_directory).rglob("*.wav"):
+            path.unlink()
+
+        for path in Path(self.test_speech_directory).rglob("*"):
+            path.rmdir()
+
+    @pytest.mark.parametrize("num_examples", [1, 2])
+    def test_generate_speech_dataset(self, num_examples) -> None:
+        dataset = data.generate_speech_dataset(
+            self.mock_record_audio,
+            self.mock_save_audio,
+            self.test_utterances_directory,
+            self.test_speech_directory,
+            num_examples,
+        )
+
+        assert isinstance(dataset, list)
+        assert all(
+            set(example.keys()) == {"file_name", "save_path", "utterance"}
+            for example in dataset
+        )
+        assert len(dataset) == num_examples * 2  # 2 utterances in the test directory
+
+        for example in dataset:
+            assert Path(example["save_path"]).exists()
+
+    @pytest.mark.parametrize("num_examples", [0, -1])
+    def test_generate_speech_dataset_num_examples_less_than_one(
+        self, num_examples
+    ) -> None:
+        with pytest.raises(ValueError):
+            data.generate_speech_dataset(
+                self.mock_record_audio,
+                self.mock_save_audio,
+                self.test_utterances_directory,
+                self.test_speech_directory,
+                num_examples,
+            )

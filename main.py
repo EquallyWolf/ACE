@@ -233,5 +233,78 @@ def intents(
         typer.echo(f"Saved the dataset to '{save_dir}/{file_name}'")
 
 
+@datasets_app.command()
+def speech(
+    num_examples: int = typer.Option(
+        1,
+        "--examples",
+        "-e",
+        help="The number of examples to keep for each intent.",
+        show_default=True,
+    ),
+    save_dir: str = typer.Option(
+        "data/speech",
+        "--save-dir",
+        "-d",
+        help="The directory to save the dataset to.",
+        show_default=True,
+    ),
+) -> None:
+    """
+    Interact with the speech dataset.
+
+    You can generate a new dataset, visualise the dataset, and save the dataset.
+    """
+    logger.log("info", "Interacting with the speech dataset.")
+
+    import random
+    from pprint import pprint
+    from datetime import datetime
+    import csv
+
+    from ace.ai.data import generate_speech_dataset
+    from ace.utils import record_audio, save_audio
+
+    typer.echo("============= Speech Dataset =============")
+
+    suffix = datetime.now().strftime("%Y%m%d")
+
+    dataset = generate_speech_dataset(
+        recording_function=record_audio,
+        saving_function=save_audio,
+        speech_directory=f"{save_dir}/UK_EN_PA_Speech_{suffix}",
+        num_examples=num_examples,
+        wait_on_user=True,
+    )
+
+    typer.echo(f"Random seed: {random.seed}")
+
+    typer.echo()
+
+    if typer.confirm("Visualise the dataset?"):
+        typer.echo("Visualising the dataset...")
+        logger.log("info", "Visualising the dataset.")
+
+        pprint(dataset)
+        typer.echo()
+
+    if typer.confirm("Save the dataset?"):
+        file_name = f"UK_EN_PA_Speech_{suffix}.csv"
+
+        with open(f"{save_dir}/{file_name}", "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["file_name", "save_path", "utterance"])  # Header row
+            for data_point in dataset:
+                writer.writerow(
+                    [
+                        data_point["file_name"],
+                        data_point["save_path"],
+                        data_point["utterance"],
+                    ]
+                )
+
+        typer.echo(f"Saved the dataset to '{save_dir}/{file_name}'")
+
+
 if __name__ == "__main__":
     main_app()

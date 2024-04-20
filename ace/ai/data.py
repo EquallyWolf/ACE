@@ -13,7 +13,7 @@ import itertools
 from pathlib import Path
 import re
 import csv
-from typing import Union
+from typing import Union, Callable
 
 import pandas as pd
 from tqdm import tqdm
@@ -21,6 +21,9 @@ from tqdm import tqdm
 from ace.utils import Logger
 
 logger = Logger.from_toml(config_file_name="logs.toml", log_name="data")
+
+AudioRecordingFunction = Callable[[float], list]
+AudioSavingFunction = Callable[[list, str], None]
 
 
 class IntentClassifierDataset:
@@ -383,3 +386,109 @@ def load_utterances(utterances_directory: str = "data/speech") -> list[str]:
     logger.log("debug", f"Loaded utterances: {utterances}")
 
     return utterances
+
+
+def generate_speech_dataset(
+    recording_function: AudioRecordingFunction,
+    saving_function: AudioSavingFunction,
+    utterances_directory: str = "data/rules",
+    speech_directory: str = "data/speech",
+    num_examples: int = 1,
+    wait_on_user: bool = False,
+) -> list[dict[str, str]]:
+    """
+    Loop through the utterances and generate examples from the user for each one.
+
+    #### Parameters:
+
+    recording_function: AudioRecordingFunction
+        The function to use to record the user's speech.
+        Must take the following parameters:
+            duration: int
+                The duration of the recording in seconds.
+
+        Must return the audio data.
+
+    saving_function: AudioSavingFunction
+        The function to use to save the audio data.
+        Must take the following parameters:
+            audio_data: list
+                The audio data to save.
+
+            save_path: str
+                The path to save the audio data to, including the file name.
+
+    utterances_directory: str (default: "data/rules")
+        The directory containing the utterances file.
+
+    speech_directory: str (default: "data/speech")
+        The location to save the generated examples.
+
+    num_examples: int (default: 1)
+        The number of examples to generate for each utterance.
+
+    wait_on_user: bool (default: False)
+        Whether or not to wait for the user to press enter before continuing after
+        each example.
+
+    #### Returns: list[dict[str, str]]
+        The metadata for the generated examples, using the format:
+            [{file_name: ..., save_path: ..., utterance: ...}, ...]
+
+    #### Raises: ValueError
+        If num_examples is less than 1.
+    """
+    if num_examples < 1:
+        logger.log(
+            "critical", f"Number of examples must be at least 1, got {num_examples}."
+        )
+        raise ValueError(f"Number of examples must be at least 1, got {num_examples}.")
+
+    utterances = dict(enumerate(load_utterances(utterances_directory)))
+
+    # Metadata is a list of dictionaries containing the file name, save path, and utterance
+    metadata = []
+    with logger.log_context(
+        "info",
+        f"Generating speech dataset in directory: {speech_directory}",
+        "Finished generating speech dataset.",
+    ):
+        for id_, utterance in utterances.items():
+            logger.log("info", f"Generating examples for utterance {id_}: {utterance}")
+
+            for i in range(num_examples):
+                print(f"Please say: '{utterance}'")
+
+                file_name = f"{id_}_{i}.wav"
+                save_path = f"{speech_directory}/{id_}/{file_name}"
+
+                # Add to metadata
+                metadata.append(
+                    {
+                        "file_name": file_name,
+                        "save_path": save_path,
+                        "utterance": utterance,
+                    }
+                )
+
+                # Duration changes based on length of utterance in words and words per minute
+                # 150 words = 60 seconds
+                # 1 word = 60 / 150 seconds
+                # Add 2 seconds to the duration to ensure the user has time to finish speaking
+                duration = len(utterance.split()) * 60 / 150 + 2
+
+                # Save in folder with utterance id as name
+                with logger.log_context(
+                    "debug",
+                    f"Recording example {i+1}/{num_examples} for utterance {id_}: {utterance}",
+                    f"Saved example for utterance {id_} to {save_path}",
+                ):
+                    print("Recording...")
+                    audio_data = recording_function(duration)
+                    print("Saving...")
+                    saving_function(audio_data, save_path)
+
+                input("Press enter to continue.") if wait_on_user else None
+
+        logger.log("debug", f"Utterances map: {metadata}")
+        return metadata
